@@ -1,78 +1,235 @@
-import * as React from "react";
-import { animated } from "react-spring";
-import { useWiggle } from "../hooks/wiggle";
-import { Link } from "wouter";
 
-// Our language strings for the header
-const strings = [
-  "Hello React",
-  "Salut React",
-  "Hola React",
-  "안녕 React",
-  "Hej React"
-];
+import React, { useState } from 'react';
+import { Search, ArrowUpDown, Plus, Globe } from 'lucide-react';
 
-// Utility function to choose a random value from the language array
-function randomLanguage() {
-  return strings[Math.floor(Math.random() * strings.length)];
-}
+const DisagreePlatform = () => {
+  const initialRooms = [
+    { 
+      id: 1, 
+      name: "Is AI Consciousness Possible?", 
+      category: "Technology",
+      participants: 1,
+      maxParticipants: 2,
+      created: "2024-11-30T10:00:00",
+      status: "open",
+      activity: "high"
+    },
+    { 
+      id: 2, 
+      name: "Universal Basic Income: Solution or Problem?", 
+      category: "Economics",
+      participants: 2,
+      maxParticipants: 2,
+      created: "2024-11-30T10:30:00",
+      status: "in-progress",
+      activity: "medium"
+    },
+    { 
+      id: 3, 
+      name: "Should We Colonize Mars?", 
+      category: "Science",
+      participants: 1,
+      maxParticipants: 2,
+      created: "2024-11-30T10:45:00",
+      status: "open",
+      activity: "low"
+    }
+  ];
 
-/**
-* The Home function defines the content that makes up the main content of the Home page
-*
-* This component is attached to the /about path in router.jsx
-* The function in app.jsx defines the page wrapper that this appears in along with the footer
-*/
+  const [rooms, setRooms] = useState(initialRooms);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
 
-export default function Home() {
-  /* We use state to set the hello string from the array https://reactjs.org/docs/hooks-state.html
-     - We'll call setHello when the user clicks to change the string
-  */
-  const [hello, setHello] = React.useState(strings[0]);
-  
-  /* The wiggle function defined in /hooks/wiggle.jsx returns the style effect and trigger function
-     - We can attach this to events on elements in the page and apply the resulting style
-  */
-  const [style, trigger] = useWiggle({ x: 5, y: 5, scale: 1 });
-
-  // When the user clicks we change the header language
-  const handleChangeHello = () => {
+  const formatTimeAgo = (dateString) => {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffInMinutes = Math.floor((now - date) / (1000 * 60));
     
-    // Choose a new Hello from our languages
-    const newHello = randomLanguage();
-    
-    // Call the function to set the state string in our component
-    setHello(newHello);
+    if (diffInMinutes < 60) {
+      return `${diffInMinutes}m ago`;
+    } else if (diffInMinutes < 1440) {
+      return `${Math.floor(diffInMinutes / 60)}h ago`;
+    } else {
+      return `${Math.floor(diffInMinutes / 1440)}d ago`;
+    }
   };
+
+  const handleSort = (key) => {
+    let direction = 'asc';
+    if (sortConfig.key === key && sortConfig.direction === 'asc') {
+      direction = 'desc';
+    }
+    
+    const sortedRooms = [...rooms].sort((a, b) => {
+      if (key === 'created') {
+        return direction === 'asc' 
+          ? new Date(a[key]) - new Date(b[key])
+          : new Date(b[key]) - new Date(a[key]);
+      }
+      
+      if (a[key] < b[key]) return direction === 'asc' ? -1 : 1;
+      if (a[key] > b[key]) return direction === 'asc' ? 1 : -1;
+      return 0;
+    });
+
+    setRooms(sortedRooms);
+    setSortConfig({ key, direction });
+  };
+
+  const handleSearch = (event) => {
+    const searchTerm = event.target.value;
+    setSearchTerm(searchTerm);
+    
+    const filtered = initialRooms.filter(room => 
+      room.name.toLowerCase().startsWith(searchTerm.toLowerCase())
+    );
+    setRooms(filtered);
+  };
+
   return (
-    <>
-      <h1 className="title">{hello}!</h1>
-      {/* When the user hovers over the image we apply the wiggle style to it */}
-      <animated.div onMouseEnter={trigger} style={style}>
-        <img
-          src="https://cdn.glitch.com/2f80c958-3bc4-4f47-8e97-6a5c8684ac2c%2Fillustration.svg?v=1618196579405"
-          className="illustration"
-          onClick={handleChangeHello}
-          alt="Illustration click to change language"
-        />
-      </animated.div>
-      <div className="navigation">
-        {/* When the user hovers over this text, we apply the wiggle function to the image style */}
-        <animated.div onMouseEnter={trigger}>
-          <a className="btn--click-me" onClick={handleChangeHello}>
-            Psst, click me
-          </a>
-        </animated.div>
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
+      <div className="max-w-6xl mx-auto p-6">
+        {/* Header */}
+        <div className="flex justify-between items-center mb-12">
+          <div className="flex items-center space-x-2">
+            <Globe className="w-8 h-8 text-blue-400" />
+            <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-400">
+              disagree
+            </h1>
+          </div>
+          <button className="group bg-gradient-to-r from-blue-500 to-purple-500 px-4 py-2 rounded-lg transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/20 flex items-center space-x-2">
+            <Plus size={20} className="transform group-hover:rotate-90 transition-transform duration-300" />
+            <span>New Room</span>
+          </button>
+        </div>
+
+        {/* Stats */}
+        <div className="grid grid-cols-3 gap-4 mb-8">
+          <div className="bg-gray-800/50 backdrop-blur-sm rounded-lg p-4 border border-gray-700">
+            <div className="text-2xl font-bold text-gray-100">24</div>
+            <div className="text-sm text-gray-400">Active Debates</div>
+          </div>
+          <div className="bg-gray-800/50 backdrop-blur-sm rounded-lg p-4 border border-gray-700">
+            <div className="text-2xl font-bold text-gray-100">142</div>
+            <div className="text-sm text-gray-400">Users Online</div>
+          </div>
+          <div className="bg-gray-800/50 backdrop-blur-sm rounded-lg p-4 border border-gray-700">
+            <div className="text-2xl font-bold text-gray-100">1,287</div>
+            <div className="text-sm text-gray-400">Debates Today</div>
+          </div>
+        </div>
+
+        {/* Search */}
+        <div className="mb-8">
+          <div className="relative">
+            <input
+              type="text"
+              placeholder="Search rooms..."
+              className="w-full bg-gray-800/50 backdrop-blur-sm border border-gray-700 rounded-lg py-3 pl-12 pr-4 focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all duration-300"
+              value={searchTerm}
+              onChange={handleSearch}
+            />
+            <Search className="absolute left-4 top-3.5 text-gray-400" size={20} />
+          </div>
+        </div>
+
+        {/* Table */}
+        <div className="bg-gray-800/50 backdrop-blur-sm rounded-lg shadow-xl border border-gray-700 overflow-hidden">
+          <table className="w-full">
+            <thead>
+              <tr className="bg-gray-900/50">
+                <th 
+                  className="px-6 py-4 text-left cursor-pointer hover:bg-gray-700/50 transition-colors"
+                  onClick={() => handleSort('name')}
+                >
+                  <div className="flex items-center space-x-2">
+                    <span className="text-gray-300 font-medium">Room</span>
+                    <ArrowUpDown size={16} className="text-gray-500" />
+                  </div>
+                </th>
+                <th 
+                  className="px-6 py-4 text-left cursor-pointer hover:bg-gray-700/50 transition-colors"
+                  onClick={() => handleSort('participants')}
+                >
+                  <div className="flex items-center space-x-2">
+                    <span className="text-gray-300 font-medium">Status</span>
+                    <ArrowUpDown size={16} className="text-gray-500" />
+                  </div>
+                </th>
+                <th 
+                  className="px-6 py-4 text-left cursor-pointer hover:bg-gray-700/50 transition-colors"
+                  onClick={() => handleSort('category')}
+                >
+                  <div className="flex items-center space-x-2">
+                    <span className="text-gray-300 font-medium">Category</span>
+                    <ArrowUpDown size={16} className="text-gray-500" />
+                  </div>
+                </th>
+                <th 
+                  className="px-6 py-4 text-left cursor-pointer hover:bg-gray-700/50 transition-colors"
+                  onClick={() => handleSort('created')}
+                >
+                  <div className="flex items-center space-x-2">
+                    <span className="text-gray-300 font-medium">Created</span>
+                    <ArrowUpDown size={16} className="text-gray-500" />
+                  </div>
+                </th>
+                <th className="px-6 py-4 text-right">
+                  <span className="text-gray-300 font-medium">Action</span>
+                </th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-700/50">
+              {rooms.map((room) => (
+                <tr 
+                  key={room.id} 
+                  className="hover:bg-gray-700/30 transition-colors duration-200"
+                >
+                  <td className="px-6 py-4">
+                    <div className="flex items-center space-x-3">
+                      <div className={`w-2 h-2 rounded-full ${
+                        room.activity === 'high' ? 'bg-green-400' :
+                        room.activity === 'medium' ? 'bg-yellow-400' :
+                        'bg-gray-400'
+                      }`} />
+                      <span className="text-gray-100 font-medium">{room.name}</span>
+                    </div>
+                  </td>
+                  <td className="px-6 py-4">
+                    <span className={`px-3 py-1 rounded-full text-xs font-medium ${
+                      room.status === 'open' 
+                        ? 'bg-blue-500/20 text-blue-300 border border-blue-500/30' 
+                        : 'bg-purple-500/20 text-purple-300 border border-purple-500/30'
+                    }`}>
+                      {room.participants}/{room.maxParticipants} {room.status === 'open' ? 'Open' : 'Full'}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4">
+                    <span className="text-gray-300">{room.category}</span>
+                  </td>
+                  <td className="px-6 py-4">
+                    <span className="text-gray-400">{formatTimeAgo(room.created)}</span>
+                  </td>
+                  <td className="px-6 py-4 text-right">
+                    <button 
+                      className={`px-4 py-1.5 rounded-lg transition-all duration-300 ${
+                        room.status === 'open'
+                          ? 'bg-gradient-to-r from-blue-500 to-blue-600 hover:shadow-lg hover:shadow-blue-500/20 text-white'
+                          : 'bg-gray-700 cursor-not-allowed text-gray-400'
+                      }`}
+                      disabled={room.status !== 'open'}
+                    >
+                      {room.status === 'open' ? 'Join' : 'Full'}
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
-      <div className="instructions">
-        <h2>Using this project</h2>
-        <p>
-          This is the Glitch <strong>Hello React</strong> project. You can use
-          it to build your own app. See more info in the{" "}
-          <Link href="/about">About</Link> page, and check out README.md in the
-          editor for additional detail plus next steps you can take!
-        </p>
-      </div>
-    </>
+    </div>
   );
-}
+};
+
+export default DisagreePlatform;
