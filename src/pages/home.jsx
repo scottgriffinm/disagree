@@ -2,23 +2,25 @@ import React, { useState } from "react";
 import { Search, ArrowUpDown, Plus, Globe } from "lucide-react";
 
 const DisagreePlatform = () => {
-  const initialRooms = Array.from({ length: 55 }, (_, index) => ({
+  var initialRooms = Array.from({ length: 55 }, (_, index) => ({
     id: index + 1,
     name: `Topic Room ${index + 1}`,
     stance: {
       party: index % 2 === 0 ? "Democrat" : "Republican",
       percentage: Math.floor(Math.random() * 100) + 1,
     },
-    participants: Math.floor(Math.random() * 3),
+    participants: Math.max(Math.floor(Math.random() * 3), 1),
     maxParticipants: 2,
     created: new Date(
       Date.now() - Math.floor(Math.random() * 1000000000)
     ).toISOString(),
   }));
+  
+  initialRooms = initialRooms.sort((a, b) => a.participants - b.participants);
 
   const [rooms, setRooms] = useState(initialRooms);
   const [searchTerm, setSearchTerm] = useState("");
-  const [sortConfig, setSortConfig] = useState({ key: null, direction: "asc" });
+  const [sortConfig, setSortConfig] = useState({ key: "participants", direction: "asc" });
   const [filters, setFilters] = useState({
     republican: false,
     democrat: false,
@@ -86,36 +88,35 @@ const DisagreePlatform = () => {
   };
   
   const isRoomOpen = (room) => {
-    return room.maxParticipants === room.participants;
+    return room.maxParticipants > room.participants;
   };
 
  const applyFilters = (searchTerm, filters) => {
   const filteredRooms = initialRooms
     .filter((room) => {
+      let matchesFilter = true;
+
+      // Apply specific party filters
       if (filters.republican) {
-        return (
-          room.stance.party === "Republican" && room.stance.percentage > 25
-        );
-      }
-      if (filters.democrat) {
-        return (
-          room.stance.party === "Democrat" && room.stance.percentage > 25
-        );
-      }
-      if (
-        filters.centrist &&
-        !(
+        matchesFilter =
+          room.stance.party === "Republican" && room.stance.percentage > 25;
+      } else if (filters.democrat) {
+        matchesFilter =
+          room.stance.party === "Democrat" && room.stance.percentage > 25;
+      } else if (filters.centrist) {
+        matchesFilter =
           (room.stance.party === "Democrat" &&
             room.stance.percentage <= 25) ||
           (room.stance.party === "Republican" &&
-            room.stance.percentage <= 25)
-        )
-      ) {
-        return false;
+            room.stance.percentage <= 25);
       }
-      if (filters.open && isRoomOpen(room))
-        return false;
-      return true;
+
+      // Apply the open filter if selected
+      if (filters.open) {
+        matchesFilter = matchesFilter && isRoomOpen(room);
+      }
+
+      return matchesFilter;
     })
     .filter((room) =>
       room.name.toLowerCase().startsWith(searchTerm.toLowerCase())
@@ -379,7 +380,7 @@ const DisagreePlatform = () => {
                         className={`px-3 py-1 rounded-full text-xs font-medium w-24 flex justify-center items-center bg-gray-500/20 text-gray-400 border border-gray-500/30`}
                       >
                         {room.participants}/{room.maxParticipants}{" "}
-                        {isRoomOpen
+                        {isRoomOpen(room)
                           ? "Open"
                           : "Full"}
                       </span>
@@ -405,16 +406,15 @@ const DisagreePlatform = () => {
                     <td className="px-6 py-4 text-right w-1/5">
                       <button
                         className={`w-24 px-4 py-1.5 rounded-lg transition-all duration-300 ${
-                          !isRoomOpen
+                          isRoomOpen(room)
                             ? "bg-gradient-to-r from-blue-500 to-blue-600 hover:shadow-lg hover:shadow-blue-500/20 text-white"
-                            ? "bg-gray-700 cursor-not-allowed text-gray-400"
-                            : 
+                            : "bg-gray-700 cursor-not-allowed text-gray-400"
                         }`}
                         disabled={
-                          !isRoomOpen
+                          !isRoomOpen(room)
                         }
                       >
-                        {isRoomOpen
+                        {isRoomOpen(room)
                           ? "Join"
                           : "Full"}
                       </button>
