@@ -3,38 +3,38 @@ import React, { useState } from 'react';
 import { Search, ArrowUpDown, Plus, Globe } from 'lucide-react';
 
 const DisagreePlatform = () => {
-  const initialRooms = [
-    { 
-      id: 1, 
-      name: "Is AI Consciousness Possible?", 
-      category: "Technology",
-      participants: 1,
-      maxParticipants: 2,
-      created: "2024-11-30T10:00:00",
-      status: "open",
-      activity: "high"
-    },
-    { 
-      id: 2, 
-      name: "Universal Basic Income: Solution or Problem?", 
-      category: "Economics",
-      participants: 2,
-      maxParticipants: 2,
-      created: "2024-11-30T10:30:00",
-      status: "in-progress",
-      activity: "medium"
-    },
-    { 
-      id: 3, 
-      name: "Should We Colonize Mars?", 
-      category: "Science",
-      participants: 1,
-      maxParticipants: 2,
-      created: "2024-11-30T10:45:00",
-      status: "open",
-      activity: "low"
-    }
-  ];
+ const initialRooms = [
+  { 
+    id: 1, 
+    name: "Is AI Consciousness Possible?", 
+    stance: { party: "Democrat", percentage: 75 },
+    participants: 1,
+    maxParticipants: 2,
+    created: "2024-11-30T10:00:00",
+    status: "open",
+    activity: "high"
+  },
+  { 
+    id: 2, 
+    name: "Universal Basic Income: Solution or Problem?", 
+    stance: { party: "Republican", percentage: 60 },
+    participants: 2,
+    maxParticipants: 2,
+    created: "2024-11-30T10:30:00",
+    status: "in-progress",
+    activity: "medium"
+  },
+  { 
+    id: 3, 
+    name: "Should We Colonize Mars?", 
+    stance: { party: "Democrat", percentage: 40 },
+    participants: 1,
+    maxParticipants: 2,
+    created: "2024-11-30T10:45:00",
+    status: "open",
+    activity: "low"
+  }
+];
 
   const [rooms, setRooms] = useState(initialRooms);
   const [searchTerm, setSearchTerm] = useState('');
@@ -54,27 +54,35 @@ const DisagreePlatform = () => {
     }
   };
 
-  const handleSort = (key) => {
-    let direction = 'asc';
-    if (sortConfig.key === key && sortConfig.direction === 'asc') {
-      direction = 'desc';
-    }
-    
-    const sortedRooms = [...rooms].sort((a, b) => {
-      if (key === 'created') {
-        return direction === 'asc' 
-          ? new Date(a[key]) - new Date(b[key])
-          : new Date(b[key]) - new Date(a[key]);
-      }
-      
-      if (a[key] < b[key]) return direction === 'asc' ? -1 : 1;
-      if (a[key] > b[key]) return direction === 'asc' ? 1 : -1;
-      return 0;
-    });
+const handleSort = (key) => {
+  let direction = 'asc';
+  if (sortConfig.key === key && sortConfig.direction === 'asc') {
+    direction = 'desc';
+  }
 
-    setRooms(sortedRooms);
-    setSortConfig({ key, direction });
-  };
+  const sortedRooms = [...rooms].sort((a, b) => {
+    if (key === 'created') {
+      return direction === 'asc'
+        ? new Date(a[key]) - new Date(b[key])
+        : new Date(b[key]) - new Date(a[key]);
+    }
+
+    if (key === 'stance') {
+      // Democratness and Republicanness sorting
+      const aScore = a.stance.party === 'Democrat' ? a.stance.percentage : 100 + a.stance.percentage;
+      const bScore = b.stance.party === 'Democrat' ? b.stance.percentage : 100 + b.stance.percentage;
+
+      return direction === 'asc' ? aScore - bScore : bScore - aScore;
+    }
+
+    if (a[key] < b[key]) return direction === 'asc' ? -1 : 1;
+    if (a[key] > b[key]) return direction === 'asc' ? 1 : -1;
+    return 0;
+  });
+
+  setRooms(sortedRooms);
+  setSortConfig({ key, direction });
+};
 
   const handleSearch = (event) => {
     const searchTerm = event.target.value;
@@ -156,15 +164,15 @@ const DisagreePlatform = () => {
                     <ArrowUpDown size={16} className="text-gray-500" />
                   </div>
                 </th>
-                <th 
-                  className="px-6 py-4 text-left cursor-pointer hover:bg-gray-700/50 transition-colors"
-                  onClick={() => handleSort('category')}
-                >
-                  <div className="flex items-center space-x-2">
-                    <span className="text-gray-300 font-medium">Category</span>
-                    <ArrowUpDown size={16} className="text-gray-500" />
-                  </div>
-                </th>
+               <th 
+  className="px-6 py-4 text-left cursor-pointer hover:bg-gray-700/50 transition-colors"
+  onClick={() => handleSort('stance')}
+>
+  <div className="flex items-center space-x-2">
+    <span className="text-gray-300 font-medium">Stance</span>
+    <ArrowUpDown size={16} className="text-gray-500" />
+  </div>
+</th>
                 <th 
                   className="px-6 py-4 text-left cursor-pointer hover:bg-gray-700/50 transition-colors"
                   onClick={() => handleSort('created')}
@@ -205,8 +213,16 @@ const DisagreePlatform = () => {
                     </span>
                   </td>
                   <td className="px-6 py-4">
-                    <span className="text-gray-300">{room.category}</span>
-                  </td>
+  <span 
+    className={`px-3 py-1 rounded-full text-xs font-medium ${
+      room.stance.party === "Democrat" 
+        ? 'bg-blue-500/20 text-blue-300 border border-blue-500/30' 
+        : 'bg-red-500/20 text-red-300 border border-red-500/30'
+    }`}
+  >
+    {room.stance.percentage}% {room.stance.party}
+  </span>
+</td>
                   <td className="px-6 py-4">
                     <span className="text-gray-400">{formatTimeAgo(room.created)}</span>
                   </td>
