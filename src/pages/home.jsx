@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Search, ArrowUpDown, Plus, Globe } from "lucide-react";
 
 const DisagreePlatform = () => {
-    const initialRooms = Array.from({ length: 55 }, (_, index) => ({
+  const initialRooms = Array.from({ length: 55 }, (_, index) => ({
     id: index + 1,
     name: `Topic Room ${index + 1}`,
     stance: {
@@ -50,8 +50,14 @@ const DisagreePlatform = () => {
       }
 
       if (key === "stance") {
-        const aScore = a.stance.party === "Democrat" ? -a.stance.percentage : a.stance.percentage;
-        const bScore = b.stance.party === "Democrat" ? -b.stance.percentage : b.stance.percentage;
+        const aScore =
+          a.stance.party === "Democrat"
+            ? -a.stance.percentage
+            : a.stance.percentage;
+        const bScore =
+          b.stance.party === "Democrat"
+            ? -b.stance.percentage
+            : b.stance.percentage;
         return direction === "asc" ? aScore - bScore : bScore - aScore;
       }
 
@@ -74,39 +80,38 @@ const DisagreePlatform = () => {
     setRooms(filtered);
     setCurrentPage(1);
   };
-  
+
   const getPagination = () => {
-  const pages = [];
-  if (totalPages <= 5) {
-    for (let i = 1; i <= totalPages; i++) {
-      pages.push(i);
-    }
-  } else {
-    if (currentPage > 3) {
-      pages.push(1);
-      if (currentPage > 4) {
+    const pages = [];
+    const maxPagesToShow = 5;
+
+    if (totalPages <= maxPagesToShow) {
+      for (let i = 1; i <= totalPages; i++) {
+        pages.push(i);
+      }
+    } else {
+      const startPage = Math.max(2, currentPage - 1);
+      const endPage = Math.min(totalPages - 1, currentPage + 1);
+
+      pages.push(1); // Always show the first page
+
+      if (startPage > 2) {
         pages.push("...");
       }
-    }
 
-    const start = Math.max(2, currentPage - 1);
-    const end = Math.min(totalPages - 1, currentPage + 1);
-    for (let i = start; i <= end; i++) {
-      pages.push(i);
-    }
+      for (let i = startPage; i <= endPage; i++) {
+        pages.push(i);
+      }
 
-    if (currentPage < totalPages - 2) {
-      if (currentPage < totalPages - 3) {
+      if (endPage < totalPages - 1) {
         pages.push("...");
       }
-      pages.push(totalPages);
-    }
-  }
 
-  return pages;
-};
-  
-  
+      pages.push(totalPages); // Always show the last page
+    }
+
+    return pages;
+  };
 
   const totalPages = Math.ceil(rooms.length / roomsPerPage);
   const paginatedRooms = rooms.slice(
@@ -118,9 +123,6 @@ const DisagreePlatform = () => {
     setCurrentPage(page);
   };
 
-  
-  
-  
   return (
   <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
     <div className="max-w-6xl mx-auto p-6">
@@ -170,7 +172,7 @@ const DisagreePlatform = () => {
         </div>
       </div>
 
-      {/* Table */}
+      {/* Table Headers */}
       <div className="bg-gray-800/50 backdrop-blur-sm rounded-lg shadow-xl border border-gray-700 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full">
@@ -186,7 +188,16 @@ const DisagreePlatform = () => {
                   </div>
                 </th>
                 <th
-                  className="px-7 py-4 text-left cursor-pointer hover:bg-gray-700/50 transition-colors whitespace-nowrap w-[150px]"
+                  className="px-3 py-4 text-left cursor-pointer hover:bg-gray-700/50 transition-colors"
+                  onClick={() => handleSort("participants")}
+                >
+                  <div className="flex items-center space-x-2">
+                    <span className="text-gray-300 font-medium">Status</span>
+                    <ArrowUpDown size={16} className="text-gray-500" />
+                  </div>
+                </th>
+                <th
+                  className="px-9 py-4 text-left cursor-pointer hover:bg-gray-700/50 transition-colors whitespace-nowrap w-[150px]"
                   onClick={() => handleSort("stance")}
                 >
                   <div className="flex items-center space-x-2">
@@ -195,7 +206,7 @@ const DisagreePlatform = () => {
                   </div>
                 </th>
                 <th
-                  className="px-5 py-4 text-left cursor-pointer hover:bg-gray-700/50 transition-colors"
+                  className="px-9 py-4 text-left cursor-pointer hover:bg-gray-700/50 transition-colors"
                   onClick={() => handleSort("created")}
                 >
                   <div className="flex items-center space-x-2">
@@ -203,8 +214,12 @@ const DisagreePlatform = () => {
                     <ArrowUpDown size={16} className="text-gray-500" />
                   </div>
                 </th>
+                <th className="px-3 py-4 text-right">
+                  <span className="text-gray-300 font-medium"></span>
+                </th>
               </tr>
             </thead>
+             {/* Table Body */}
             <tbody className="divide-y divide-gray-700/50">
               {paginatedRooms.map((room) => (
                 <tr
@@ -227,7 +242,17 @@ const DisagreePlatform = () => {
                       </span>
                     </div>
                   </td>
-                  <td className="px-6 py-4 text-center">
+                  <td className="px-2 py-4 text-center">
+                    <span
+                      className={`px-3 py-1 rounded-full text-xs font-medium w-24 flex justify-center items-center bg-gray-500/20 text-gray-400 border border-gray-500/30`}
+                    >
+                      {room.participants}/{room.maxParticipants}{" "}
+                      {room.maxParticipants - room.participants === 0
+                        ? "Full"
+                        : "Open"}
+                    </span>
+                  </td>
+                  <td className="px-9 py-4 text-center">
                     <span
                       className={`px-3 py-1 rounded-full text-xs font-medium w-32 inline-block text-center ${
                         room.stance.party === "Democrat"
@@ -238,10 +263,24 @@ const DisagreePlatform = () => {
                       {room.stance.percentage}% {room.stance.party}
                     </span>
                   </td>
-                  <td className="px-6 py-4">
+                  <td className="px-9 py-4">
                     <span className="text-gray-400">
                       {formatTimeAgo(room.created)}
                     </span>
+                  </td>
+                  <td className="px-6 py-4 text-right">
+                    <button
+                      className={`w-24 px-4 py-1.5 rounded-lg transition-all duration-300 ${
+                        room.maxParticipants - room.participants === 0
+                          ? "bg-gray-700 cursor-not-allowed text-gray-400"
+                          : "bg-gradient-to-r from-blue-500 to-blue-600 hover:shadow-lg hover:shadow-blue-500/20 text-white"
+                      }`}
+                      disabled={room.maxParticipants - room.participants === 0}
+                    >
+                      {room.maxParticipants - room.participants === 0
+                        ? "Full"
+                        : "Join"}
+                    </button>
                   </td>
                 </tr>
               ))}
@@ -275,8 +314,6 @@ const DisagreePlatform = () => {
     </div>
   </div>
 );
-  
-  
 };
 
 export default DisagreePlatform;
