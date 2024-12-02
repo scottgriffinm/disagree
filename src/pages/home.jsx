@@ -148,7 +148,7 @@ const DisagreePlatform = () => {
                   </div>
                 </th>
                 <th 
-                  className="px-8 py-4 text-left cursor-pointer hover:bg-gray-700/50 transition-colors"
+                  className="px-7 py-4 text-left cursor-pointer hover:bg-gray-700/50 transition-colors"
                   onClick={() => handleSort('participants')}
                 >
                   <div className="flex items-center space-x-2">
@@ -211,17 +211,17 @@ const DisagreePlatform = () => {
                     <span className="text-gray-400">{formatTimeAgo(room.created)}</span>
                   </td>
                   <td className="px-6 py-4 text-right">
-                    <button 
-                      className={`px-4 py-1.5 rounded-lg transition-all duration-300 ${
-                        room.status === 'open'
-                          ? 'bg-gradient-to-r from-blue-500 to-blue-600 hover:shadow-lg hover:shadow-blue-500/20 text-white'
-                          : 'bg-gray-700 cursor-not-allowed text-gray-400'
-                      }`}
-                      disabled={room.status !== 'open'}
-                    >
-                      {room.status === 'open' ? 'Join' : 'Full'}
-                    </button>
-                  </td>
+  <button 
+    className={`w-24 px-4 py-1.5 rounded-lg transition-all duration-300 ${
+      room.status === 'open'
+        ? 'bg-gradient-to-r from-blue-500 to-blue-600 hover:shadow-lg hover:shadow-blue-500/20 text-white'
+        : 'bg-gray-700 cursor-not-allowed text-gray-400'
+    }`}
+    disabled={room.status !== 'open'}
+  >
+    {room.status === 'open' ? 'Join' : 'Full'}
+  </button>
+</td>
                 </tr>
               ))}
             </tbody>
