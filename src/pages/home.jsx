@@ -19,6 +19,11 @@ const DisagreePlatform = () => {
   const [rooms, setRooms] = useState(initialRooms);
   const [searchTerm, setSearchTerm] = useState("");
   const [sortConfig, setSortConfig] = useState({ key: null, direction: "asc" });
+  const [filters, setFilters] = useState({
+  republican: false,
+  democrat: false,
+  notFull: false,
+});
   const [currentPage, setCurrentPage] = useState(1);
   const roomsPerPage = 5;
 
@@ -70,16 +75,40 @@ const DisagreePlatform = () => {
     setSortConfig({ key, direction });
   };
 
-  const handleSearch = (event) => {
-    const searchTerm = event.target.value;
-    setSearchTerm(searchTerm);
+const handleSearch = (event) => {
+  const searchTerm = event.target.value;
+  setSearchTerm(searchTerm);
 
-    const filtered = initialRooms.filter((room) =>
+  const filteredRooms = initialRooms
+    .filter((room) => {
+      if (filters.republican && room.stance.party !== "Republican") return false;
+      if (filters.democrat && room.stance.party !== "Democrat") return false;
+      if (filters.notFull && room.participants === room.maxParticipants)
+        return false;
+      return true;
+    })
+    .filter((room) =>
       room.name.toLowerCase().startsWith(searchTerm.toLowerCase())
     );
-    setRooms(filtered);
-    setCurrentPage(1);
-  };
+
+  setRooms(filteredRooms);
+};
+  
+  const applyFilters = (searchTerm, filters) => {
+  const filteredRooms = initialRooms
+    .filter((room) => {
+      if (filters.republican && room.stance.party !== "Republican") return false;
+      if (filters.democrat && room.stance.party !== "Democrat") return false;
+      if (filters.notFull && room.participants === room.maxParticipants)
+        return false;
+      return true;
+    })
+    .filter((room) =>
+      room.name.toLowerCase().startsWith(searchTerm.toLowerCase())
+    );
+
+  setRooms(filteredRooms);
+};
 
   const getPagination = () => {
     const pages = [];
@@ -122,6 +151,7 @@ const DisagreePlatform = () => {
   const handlePageChange = (page) => {
     setCurrentPage(page);
   };
+  
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
@@ -177,6 +207,45 @@ const DisagreePlatform = () => {
             />
           </div>
         </div>
+        
+        <div className="flex space-x-4 mb-4">
+  <button
+    className={`px-4 py-2 rounded-lg transition-all duration-300 ${
+      filters.republican
+        ? "bg-red-500 text-white"
+        : "bg-gray-700 text-gray-300 hover:bg-gray-600"
+    }`}
+    onClick={() =>
+      setFilters((prev) => ({ ...prev, republican: !prev.republican }))
+    }
+  >
+    Republican
+  </button>
+  <button
+    className={`px-4 py-2 rounded-lg transition-all duration-300 ${
+      filters.democrat
+        ? "bg-blue-500 text-white"
+        : "bg-gray-700 text-gray-300 hover:bg-gray-600"
+    }`}
+    onClick={() =>
+      setFilters((prev) => ({ ...prev, democrat: !prev.democrat }))
+    }
+  >
+    Democrat
+  </button>
+  <button
+    className={`px-4 py-2 rounded-lg transition-all duration-300 ${
+      filters.notFull
+        ? "bg-green-500 text-white"
+        : "bg-gray-700 text-gray-300 hover:bg-gray-600"
+    }`}
+    onClick={() =>
+      setFilters((prev) => ({ ...prev, notFull: !prev.notFull }))
+    }
+  >
+    Not Full
+  </button>
+</div>
 
         {/* Table */}
         <div className="bg-gray-800/50 backdrop-blur-sm rounded-lg shadow-xl border border-gray-700 overflow-hidden">
