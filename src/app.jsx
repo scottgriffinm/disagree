@@ -1,11 +1,15 @@
 import React from "react";
-import { Router } from "wouter";
-import PageRouter from "./components/router.jsx";
+import { Route } from "wouter";
 
-export default function App() {
+// Import your DisagreePlatform component
+import DisagreePlatform from "./pages/home.jsx";
+
+export default function PageRouter() {
   return (
-    <Router>
-      <PageRouter />
-    </Router>
+    <>
+      {/* Render DisagreePlatform for the root path */}
+      <Route path="/" component={DisagreePlatform} />
+      {/* Other routes can go here */}
+    </>
   );
 }
