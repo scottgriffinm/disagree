@@ -1,28 +1,31 @@
 {
-  "name": "glitch-hello-react",
-  "version": "0.0.5",
-  "description": "A simple React single page app, built with Vite and React.",
+  "name": "disagree-platform",
+  "version": "1.0.0",
+  "description": "React app with Express backend providing dynamic topic room data",
+  "main": "server/server.js",
   "scripts": {
     "start": "npm run dev",
     "dev": "concurrently \"npm run server\" \"npm run client\"",
     "client": "vite",
-    "server": "node server/server.js"
+    "server": "node server/server.js",
+    "build": "vite build",
+    "serve": "vite preview"
   },
   "dependencies": {
+    "autoprefixer": "^10.4.20",
+    "express": "^4.18.2",
+    "lucide-react": "^0.462.0",
+    "postcss": "^8.4.49",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "react-helmet-async": "^1.3.0",
     "react-spring": "^9.7.2",
     "wouter": "^2.11.0",
-    "react-helmet-async": "^1.3.0",
-    "@vitejs/plugin-react": "^4.0.3",
-    "lucide-react": "^0.462.0",
-    "tailwindcss": "^3.4.15",
-    "postcss": "^8.4.49",
-    "autoprefixer": "^10.4.20",
-    "express": "^5.0.1",
-    "concurrently": "^9.1.0"
+    "tailwindcss": "^3.4.15"
   },
   "devDependencies": {
+    "@vitejs/plugin-react": "^4.0.3",
+    "concurrently": "^7.6.0",
     "vite": "^4.0.0"
   },
   "browserslist": [
@@ -33,8 +36,19 @@
     "node": "16.x"
   },
   "repository": {
-    "url": "https://glitch.com/edit/#!/glitch-hello-react"
+    "type": "git",
+    "url": "https://glitch.com/edit/#!/disagree-platform"
   },
+  "keywords": [
+    "react",
+    "express",
+    "vite",
+    "glitch",
+    "frontend",
+    "backend"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
   "glitch": {
     "projectType": "generated_static"
   }
