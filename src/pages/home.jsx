@@ -104,20 +104,20 @@ const DisagreePlatform = () => {
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-3 gap-4 mb-8">
-          <div className="bg-gray-800/50 backdrop-blur-sm rounded-lg p-4 border border-gray-700">
-            <div className="text-2xl font-bold text-gray-100">24</div>
-            <div className="text-sm text-gray-400">Active Debates</div>
-          </div>
-          <div className="bg-gray-800/50 backdrop-blur-sm rounded-lg p-4 border border-gray-700">
-            <div className="text-2xl font-bold text-gray-100">142</div>
-            <div className="text-sm text-gray-400">Users Online</div>
-          </div>
-          <div className="bg-gray-800/50 backdrop-blur-sm rounded-lg p-4 border border-gray-700">
-            <div className="text-2xl font-bold text-gray-100">1,287</div>
-            <div className="text-sm text-gray-400">Debates Today</div>
-          </div>
-        </div>
+<div className="grid grid-cols-3 gap-4 mb-8">
+  <div className="bg-gray-800/50 backdrop-blur-sm rounded-lg p-4 border border-gray-700 flex flex-col items-center justify-center text-center">
+    <div className="text-2xl font-bold text-gray-100">24</div>
+    <div className="text-sm text-gray-400">Active Debates</div>
+  </div>
+  <div className="bg-gray-800/50 backdrop-blur-sm rounded-lg p-4 border border-gray-700 flex flex-col items-center justify-center text-center">
+    <div className="text-2xl font-bold text-gray-100">142</div>
+    <div className="text-sm text-gray-400">Users Online</div>
+  </div>
+  <div className="bg-gray-800/50 backdrop-blur-sm rounded-lg p-4 border border-gray-700 flex flex-col items-center justify-center text-center">
+    <div className="text-2xl font-bold text-gray-100">1,287</div>
+    <div className="text-sm text-gray-400">Debates Today</div>
+  </div>
+</div>
 
         {/* Search */}
         <div className="mb-8">
@@ -148,7 +148,7 @@ const DisagreePlatform = () => {
                   </div>
                 </th>
                 <th 
-                  className="px-6 py-4 text-left cursor-pointer hover:bg-gray-700/50 transition-colors"
+                  className="px-8 py-4 text-left cursor-pointer hover:bg-gray-700/50 transition-colors"
                   onClick={() => handleSort('participants')}
                 >
                   <div className="flex items-center space-x-2">
@@ -175,7 +175,7 @@ const DisagreePlatform = () => {
                   </div>
                 </th>
                 <th className="px-6 py-4 text-right">
-                  <span className="text-gray-300 font-medium">Action</span>
+                  <span className="text-gray-300 font-medium"></span>
                 </th>
               </tr>
             </thead>
