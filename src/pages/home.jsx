@@ -19,10 +19,11 @@ const DisagreePlatform = () => {
   const [rooms, setRooms] = useState(initialRooms);
   const [searchTerm, setSearchTerm] = useState("");
   const [sortConfig, setSortConfig] = useState({ key: null, direction: "asc" });
-  const [filters, setFilters] = useState({
+ const [filters, setFilters] = useState({
   republican: false,
   democrat: false,
-  notFull: false,
+  open: false,
+  centrist: false, // New Centrist filter
 });
   const [currentPage, setCurrentPage] = useState(1);
   const roomsPerPage = 5;
@@ -89,7 +90,15 @@ const applyFilters = (searchTerm, filters) => {
     .filter((room) => {
       if (filters.republican && room.stance.party !== "Republican") return false;
       if (filters.democrat && room.stance.party !== "Democrat") return false;
-      if (filters.notFull && room.participants === room.maxParticipants)
+      if (
+        filters.centrist &&
+        !(
+          (room.stance.party === "Democrat" && room.stance.percentage <= 30) ||
+          (room.stance.party === "Republican" && room.stance.percentage <= 30)
+        )
+      )
+        return false;
+      if (filters.open && room.participants === room.maxParticipants)
         return false;
       return true;
     })
@@ -207,19 +216,24 @@ const applyFilters = (searchTerm, filters) => {
           </div>
         </div>
         
-       <div className="flex space-x-4 my-4">
+        
+        
+        
+          {/* Filters */}
+     <div className="flex space-x-4 my-4">
   {/* Republican Filter */}
   <button
     className={`px-4 py-2 rounded-full text-sm font-medium ${
       filters.republican
         ? "bg-red-500/20 text-red-300 border border-red-500/30"
-        : "bg-gray-700 text-gray-300 border border-gray-500/30 hover:bg-gray-600"
+        : "bg-gray-500/20 text-gray-400 border border-gray-500/30"
     }`}
     onClick={() => {
       const newFilters = {
         ...filters,
         republican: !filters.republican,
         democrat: false,
+        centrist: false, // Turn off Centrist if Republican is selected
       };
       setFilters(newFilters);
       applyFilters(searchTerm, newFilters);
@@ -233,13 +247,14 @@ const applyFilters = (searchTerm, filters) => {
     className={`px-4 py-2 rounded-full text-sm font-medium ${
       filters.democrat
         ? "bg-blue-500/20 text-blue-300 border border-blue-500/30"
-        : "bg-gray-700 text-gray-300 border border-gray-500/30 hover:bg-gray-600"
+        : "bg-gray-500/20 text-gray-400 border border-gray-500/30"
     }`}
     onClick={() => {
       const newFilters = {
         ...filters,
         democrat: !filters.democrat,
         republican: false,
+        centrist: false, // Turn off Centrist if Democrat is selected
       };
       setFilters(newFilters);
       applyFilters(searchTerm, newFilters);
@@ -248,22 +263,45 @@ const applyFilters = (searchTerm, filters) => {
     Democrat
   </button>
 
-  {/* Not Full Filter */}
+  {/* Centrist Filter */}
   <button
     className={`px-4 py-2 rounded-full text-sm font-medium ${
-      filters.notFull
-        ? "bg-green-500/20 text-green-300 border border-green-500/30"
-        : "bg-gray-700 text-gray-300 border border-gray-500/30 hover:bg-gray-600"
+      filters.centrist
+        ? "bg-purple-500/20 text-purple-300 border border-purple-500/30"
+        : "bg-gray-500/20 text-gray-400 border border-gray-500/30"
     }`}
     onClick={() => {
-      const newFilters = { ...filters, notFull: !filters.notFull };
+      const newFilters = {
+        ...filters,
+        centrist: !filters.centrist,
+        republican: false, // Turn off other filters
+        democrat: false,
+      };
       setFilters(newFilters);
       applyFilters(searchTerm, newFilters);
     }}
   >
-    Not Full
+    Centrist
+  </button>
+
+  {/* Open Filter */}
+  <button
+    className={`px-4 py-2 rounded-full text-sm font-medium ${
+      filters.open
+        ? "bg-green-500/20 text-green-300 border border-green-500/30"
+        : "bg-gray-500/20 text-gray-400 border border-gray-500/30"
+    }`}
+    onClick={() => {
+      const newFilters = { ...filters, open: !filters.open };
+      setFilters(newFilters);
+      applyFilters(searchTerm, newFilters);
+    }}
+  >
+    Open
   </button>
 </div>
+        
+        
 
         {/* Table */}
         <div className="bg-gray-800/50 backdrop-blur-sm rounded-lg shadow-xl border border-gray-700 overflow-hidden">
