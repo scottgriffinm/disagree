@@ -154,117 +154,120 @@ const DisagreePlatform = () => {
 
         {/* Table */}
         <div className="bg-gray-800/50 backdrop-blur-sm rounded-lg shadow-xl border border-gray-700 overflow-hidden">
-  {/* Wrapper for horizontal scrolling */}
-  <div className="overflow-x-auto">
-    <table className="w-full">
-      <thead>
-        <tr className="bg-gray-900/50">
-          <th
-            className="px-6 py-4 text-left cursor-pointer hover:bg-gray-700/50 transition-colors"
-            onClick={() => handleSort("name")}
-          >
-            <div className="flex items-center space-x-2">
-              <span className="text-gray-300 font-medium">Room</span>
-              <ArrowUpDown size={16} className="text-gray-500" />
-            </div>
-          </th>
-          <th
-            className="px-7 py-4 text-left cursor-pointer hover:bg-gray-700/50 transition-colors"
-            onClick={() => handleSort("participants")}
-          >
-            <div className="flex items-center space-x-2">
-              <span className="text-gray-300 font-medium">Status</span>
-              <ArrowUpDown size={16} className="text-gray-500" />
-            </div>
-          </th>
-          <th 
-            className="px-6 py-4 text-left cursor-pointer hover:bg-gray-700/50 transition-colors whitespace-nowrap w-[150px]"
-            onClick={() => handleSort('stance')}
-          >
-            <div className="flex items-center space-x-2">
-              <span className="text-gray-300 font-medium">Stance</span>
-              <ArrowUpDown size={16} className="text-gray-500" />
-            </div>
-          </th>
-          <th
-            className="px-6 py-4 text-left cursor-pointer hover:bg-gray-700/50 transition-colors"
-            onClick={() => handleSort("created")}
-          >
-            <div className="flex items-center space-x-2">
-              <span className="text-gray-300 font-medium">Created</span>
-              <ArrowUpDown size={16} className="text-gray-500" />
-            </div>
-          </th>
-          <th className="px-6 py-4 text-right">
-            <span className="text-gray-300 font-medium"></span>
-          </th>
-        </tr>
-      </thead>
-      <tbody className="divide-y divide-gray-700/50">
-        {rooms.map((room) => (
-          <tr
-            key={room.id}
-            className="hover:bg-gray-700/30 transition-colors duration-200"
-          >
-            <td className="px-6 py-4">
-              <div className="flex items-center space-x-3">
-                <div
-                  className={`w-2 h-2 rounded-full ${
-                    room.maxParticipants - room.participants >= 1
-                      ? "bg-green-400"
-                      : "bg-gray-400"
-                  }`}
-                />
-                <span className="text-gray-100 font-medium">
-                  {room.name}
-                </span>
-              </div>
-            </td>
-            <td className="px-6 py-4 text-center">
-             <span 
-  className={`px-3 py-1 rounded-full text-xs font-medium w-24 flex justify-center items-center ${
-    room.status === 'open' 
-      ? 'bg-blue-500/20 text-blue-300 border border-blue-500/30'
-      : 'bg-gray-500/20 text-gray-300 border border-gray-500/30'
-  }`}
->
-  {room.participants}/{room.maxParticipants} {room.status === "open" ? "Open" : "Full"}
-</span>
-            </td>
-            <td className="px-6 py-4 text-center">
-              <span 
-                className={`px-3 py-1 rounded-full text-xs font-medium w-32 inline-block text-center ${
-                  room.stance.party === "Democrat" 
-                    ? 'bg-blue-500/20 text-blue-300 border border-blue-500/30' 
-                    : 'bg-red-500/20 text-red-300 border border-red-500/30'
-                }`}
-              >
-                {room.stance.percentage}% {room.stance.party}
-              </span>
-            </td>
-            <td className="px-6 py-4">
-              <span className="text-gray-400">
-                {formatTimeAgo(room.created)}
-              </span>
-            </td>
-            <td className="px-6 py-4 text-right">
-              <button
-                className={`w-24 px-4 py-1.5 rounded-lg transition-all duration-300 ${
-                  room.status === "open"
-                    ? "bg-gradient-to-r from-blue-500 to-blue-600 hover:shadow-lg hover:shadow-blue-500/20 text-white"
-                    : "bg-gray-700 cursor-not-allowed text-gray-400"
-                }`}
-                disabled={room.status !== "open"}
-              >
-                {room.status === "open" ? "Join" : "Full"}
-              </button>
-            </td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
-  </div>
-</div>
+          {/* Wrapper for horizontal scrolling */}
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr className="bg-gray-900/50">
+                  <th
+                    className="px-4 py-4 text-left cursor-pointer hover:bg-gray-700/50 transition-colors"
+                    onClick={() => handleSort("name")}
+                  >
+                    <div className="flex items-center space-x-2">
+                      <span className="text-gray-300 font-medium">Room</span>
+                      <ArrowUpDown size={16} className="text-gray-500" />
+                    </div>
+                  </th>
+                  <th
+                    className="px-4 py-4 text-left cursor-pointer hover:bg-gray-700/50 transition-colors"
+                    onClick={() => handleSort("participants")}
+                  >
+                    <div className="flex items-center space-x-2">
+                      <span className="text-gray-300 font-medium">Status</span>
+                      <ArrowUpDown size={16} className="text-gray-500" />
+                    </div>
+                  </th>
+                  <th
+                    className="px-4 py-4 text-left cursor-pointer hover:bg-gray-700/50 transition-colors whitespace-nowrap w-[150px]"
+                    onClick={() => handleSort("stance")}
+                  >
+                    <div className="flex items-center space-x-2">
+                      <span className="text-gray-300 font-medium">Stance</span>
+                      <ArrowUpDown size={16} className="text-gray-500" />
+                    </div>
+                  </th>
+                  <th
+                    className="px-3 py-4 text-left cursor-pointer hover:bg-gray-700/50 transition-colors"
+                    onClick={() => handleSort("created")}
+                  >
+                    <div className="flex items-center space-x-2">
+                      <span className="text-gray-300 font-medium">Created</span>
+                      <ArrowUpDown size={16} className="text-gray-500" />
+                    </div>
+                  </th>
+                  <th className="px-3 py-4 text-right">
+                    <span className="text-gray-300 font-medium"></span>
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-700/50">
+                {rooms.map((room) => (
+                  <tr
+                    key={room.id}
+                    className="hover:bg-gray-700/30 transition-colors duration-200"
+                  >
+                    <td className="px-3 py-4">
+                      <div className="flex items-center space-x-3">
+                        <div
+                          className={`w-2 h-2 rounded-full ${
+                            room.maxParticipants - room.participants < 1
+                              ? "bg-gray-400"
+                              : room.stance.party === "Republican"
+                              ? "bg-red-400"
+                              : "bg-blue-400"
+                          }`}
+                        />
+                        <span className="text-gray-100 font-medium">
+                          {room.name}
+                        </span>
+                      </div>
+                    </td>
+                    <td className="px-3 py-4 text-center">
+                      <span
+                        className={`px-3 py-1 rounded-full text-xs font-medium w-24 flex justify-center items-center ${
+                          room.status === "open"
+                            ? "bg-purple-500/20 text-purple-300 border border-purple-500/30"
+                            : "bg-gray-500/20 text-gray-300 border border-gray-500/30"
+                        }`}
+                      >
+                        {room.participants}/{room.maxParticipants}{" "}
+                        {room.status === "open" ? "Open" : "Full"}
+                      </span>
+                    </td>
+                    <td className="px-3 py-4 text-center">
+                      <span
+                        className={`px-3 py-1 rounded-full text-xs font-medium w-32 inline-block text-center ${
+                          room.stance.party === "Democrat"
+                            ? "bg-blue-500/20 text-blue-300 border border-blue-500/30"
+                            : "bg-red-500/20 text-red-300 border border-red-500/30"
+                        }`}
+                      >
+                        {room.stance.percentage}% {room.stance.party}
+                      </span>
+                    </td>
+                    <td className="px-3 py-4">
+                      <span className="text-gray-400">
+                        {formatTimeAgo(room.created)}
+                      </span>
+                    </td>
+                    <td className="px-3 py-4 text-right">
+                      <button
+                        className={`w-24 px-4 py-1.5 rounded-lg transition-all duration-300 ${
+                          room.status === "open"
+                            ? "bg-gradient-to-r from-blue-500 to-blue-600 hover:shadow-lg hover:shadow-blue-500/20 text-white"
+                            : "bg-gray-700 cursor-not-allowed text-gray-400"
+                        }`}
+                        disabled={room.status !== "open"}
+                      >
+                        {room.status === "open" ? "Join" : "Full"}
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
       </div>
     </div>
   );
