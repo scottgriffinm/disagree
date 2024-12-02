@@ -1,24 +1,9 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Search, ArrowUpDown, Plus, Globe } from "lucide-react";
 
 const DisagreePlatform = () => {
-  var initialRooms = Array.from({ length: 55 }, (_, index) => ({
-    id: index + 1,
-    name: `Topic Room ${index + 1}`,
-    stance: {
-      party: index % 2 === 0 ? "Democrat" : "Republican",
-      percentage: Math.floor(Math.random() * 100) + 1,
-    },
-    participants: Math.max(Math.floor(Math.random() * 3), 1),
-    maxParticipants: 2,
-    created: new Date(
-      Date.now() - Math.floor(Math.random() * 1000000000)
-    ).toISOString(),
-  }));
 
-  initialRooms = initialRooms.sort((a, b) => a.participants - b.participants);
-
-  const [rooms, setRooms] = useState(initialRooms);
+  const [rooms, setRooms] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [sortConfig, setSortConfig] = useState({
     key: "participants",
@@ -32,6 +17,21 @@ const DisagreePlatform = () => {
   });
   const [currentPage, setCurrentPage] = useState(1);
   const roomsPerPage = 5;
+  
+  
+   useEffect(() => {
+    const fetchRooms = async () => {
+      try {
+        const response = await fetch('/api/rooms');
+        const data = await response.json();
+        setRooms(data.sort((a, b) => a.participants - b.participants));
+      } catch (error) {
+        console.error("Error fetching rooms:", error);
+      }
+    };
+
+    fetchRooms();
+  }, []);
 
   const formatTimeAgo = (dateString) => {
     const date = new Date(dateString);
@@ -95,7 +95,7 @@ const DisagreePlatform = () => {
   };
 
   const applyFilters = (searchTerm, filters) => {
-    const filteredRooms = initialRooms
+    const filteredRooms = rooms
       .filter((room) => {
         let matchesFilter = true;
 
