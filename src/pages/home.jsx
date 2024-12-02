@@ -76,9 +76,15 @@ const DisagreePlatform = () => {
   };
 
 const handleSearch = (event) => {
-  const searchTerm = event.target.value;
-  setSearchTerm(searchTerm);
-
+  setSearchTerm(event.target.value);
+  applyFilters(event.target.value, filters);
+};
+  
+    const calculateTotalPages = (filteredRooms) => {
+  return Math.ceil(filteredRooms.length / roomsPerPage);
+};
+  
+const applyFilters = (searchTerm, filters) => {
   const filteredRooms = initialRooms
     .filter((room) => {
       if (filters.republican && room.stance.party !== "Republican") return false;
@@ -90,25 +96,18 @@ const handleSearch = (event) => {
     .filter((room) =>
       room.name.toLowerCase().startsWith(searchTerm.toLowerCase())
     );
+
+  const totalPages = calculateTotalPages(filteredRooms);
+
+  // Adjust current page if it's invalid for the filtered result
+  if (currentPage > totalPages) {
+    setCurrentPage(1); // Reset to the first page
+  }
 
   setRooms(filteredRooms);
 };
   
-  const applyFilters = (searchTerm, filters) => {
-  const filteredRooms = initialRooms
-    .filter((room) => {
-      if (filters.republican && room.stance.party !== "Republican") return false;
-      if (filters.democrat && room.stance.party !== "Democrat") return false;
-      if (filters.notFull && room.participants === room.maxParticipants)
-        return false;
-      return true;
-    })
-    .filter((room) =>
-      room.name.toLowerCase().startsWith(searchTerm.toLowerCase())
-    );
 
-  setRooms(filteredRooms);
-};
 
   const getPagination = () => {
     const pages = [];
@@ -208,40 +207,59 @@ const handleSearch = (event) => {
           </div>
         </div>
         
-        <div className="flex space-x-4 mb-4">
+       <div className="flex space-x-4 my-4">
+  {/* Republican Filter */}
   <button
-    className={`px-4 py-2 rounded-lg transition-all duration-300 ${
+    className={`px-4 py-2 rounded-full text-sm font-medium ${
       filters.republican
-        ? "bg-red-500 text-white"
-        : "bg-gray-700 text-gray-300 hover:bg-gray-600"
+        ? "bg-red-500/20 text-red-300 border border-red-500/30"
+        : "bg-gray-700 text-gray-300 border border-gray-500/30 hover:bg-gray-600"
     }`}
-    onClick={() =>
-      setFilters((prev) => ({ ...prev, republican: !prev.republican }))
-    }
+    onClick={() => {
+      const newFilters = {
+        ...filters,
+        republican: !filters.republican,
+        democrat: false,
+      };
+      setFilters(newFilters);
+      applyFilters(searchTerm, newFilters);
+    }}
   >
     Republican
   </button>
+
+  {/* Democrat Filter */}
   <button
-    className={`px-4 py-2 rounded-lg transition-all duration-300 ${
+    className={`px-4 py-2 rounded-full text-sm font-medium ${
       filters.democrat
-        ? "bg-blue-500 text-white"
-        : "bg-gray-700 text-gray-300 hover:bg-gray-600"
+        ? "bg-blue-500/20 text-blue-300 border border-blue-500/30"
+        : "bg-gray-700 text-gray-300 border border-gray-500/30 hover:bg-gray-600"
     }`}
-    onClick={() =>
-      setFilters((prev) => ({ ...prev, democrat: !prev.democrat }))
-    }
+    onClick={() => {
+      const newFilters = {
+        ...filters,
+        democrat: !filters.democrat,
+        republican: false,
+      };
+      setFilters(newFilters);
+      applyFilters(searchTerm, newFilters);
+    }}
   >
     Democrat
   </button>
+
+  {/* Not Full Filter */}
   <button
-    className={`px-4 py-2 rounded-lg transition-all duration-300 ${
+    className={`px-4 py-2 rounded-full text-sm font-medium ${
       filters.notFull
-        ? "bg-green-500 text-white"
-        : "bg-gray-700 text-gray-300 hover:bg-gray-600"
+        ? "bg-green-500/20 text-green-300 border border-green-500/30"
+        : "bg-gray-700 text-gray-300 border border-gray-500/30 hover:bg-gray-600"
     }`}
-    onClick={() =>
-      setFilters((prev) => ({ ...prev, notFull: !prev.notFull }))
-    }
+    onClick={() => {
+      const newFilters = { ...filters, notFull: !filters.notFull };
+      setFilters(newFilters);
+      applyFilters(searchTerm, newFilters);
+    }}
   >
     Not Full
   </button>
