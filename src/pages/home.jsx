@@ -11,7 +11,6 @@ const DisagreePlatform = () => {
       maxParticipants: 2,
       created: "2024-12-01T09:00:00",
       status: "open",
-      activity: "high",
     },
     {
       id: 2,
@@ -21,7 +20,6 @@ const DisagreePlatform = () => {
       maxParticipants: 2,
       created: "2024-12-01T19:30:00",
       status: "in-progress",
-      activity: "medium",
     },
     {
       id: 3,
@@ -31,7 +29,6 @@ const DisagreePlatform = () => {
       maxParticipants: 2,
       created: "2024-11-30T10:45:00",
       status: "open",
-      activity: "low",
     },
   ];
 
@@ -224,14 +221,10 @@ const DisagreePlatform = () => {
                     </td>
                     <td className="px-3 py-4 text-center">
                       <span
-                        className={`px-3 py-1 rounded-full text-xs font-medium w-24 flex justify-center items-center ${
-                          room.status === "open"
-                            ? "bg-purple-500/20 text-purple-300 border border-purple-500/30"
-                            : "bg-gray-500/20 text-gray-300 border border-gray-500/30"
-                        }`}
+                        className={`px-3 py-1 rounded-full text-xs font-medium w-24 flex justify-center items-center bg-gray-500/20 text-gray-400 border border-gray-500/30`}
                       >
                         {room.participants}/{room.maxParticipants}{" "}
-                        {room.status === "open" ? "Open" : "Full"}
+                        {room.maxParticipants - room.participants === 0 ? "Full" : "Open"}
                       </span>
                     </td>
                     <td className="px-3 py-4 text-center">
@@ -253,11 +246,11 @@ const DisagreePlatform = () => {
                     <td className="px-3 py-4 text-right">
                       <button
                         className={`w-24 px-4 py-1.5 rounded-lg transition-all duration-300 ${
-                          room.status === "open"
+                          room.maxParticipants - room.participants != 0
                             ? "bg-gradient-to-r from-blue-500 to-blue-600 hover:shadow-lg hover:shadow-blue-500/20 text-white"
                             : "bg-gray-700 cursor-not-allowed text-gray-400"
                         }`}
-                        disabled={room.status !== "open"}
+                        disabled={room.maxParticipants - room.participants === 0}
                       >
                         {room.status === "open" ? "Join" : "Full"}
                       </button>
