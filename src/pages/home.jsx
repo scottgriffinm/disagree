@@ -19,12 +19,12 @@ const DisagreePlatform = () => {
   const [rooms, setRooms] = useState(initialRooms);
   const [searchTerm, setSearchTerm] = useState("");
   const [sortConfig, setSortConfig] = useState({ key: null, direction: "asc" });
- const [filters, setFilters] = useState({
-  republican: false,
-  democrat: false,
-  open: false,
-  centrist: false, // New Centrist filter
-});
+  const [filters, setFilters] = useState({
+    republican: false,
+    democrat: false,
+    open: false,
+    centrist: false, // New Centrist filter
+  });
   const [currentPage, setCurrentPage] = useState(1);
   const roomsPerPage = 5;
 
@@ -76,29 +76,44 @@ const DisagreePlatform = () => {
     setSortConfig({ key, direction });
   };
 
-const handleSearch = (event) => {
-  setSearchTerm(event.target.value);
-  applyFilters(event.target.value, filters);
-};
+  const handleSearch = (event) => {
+    setSearchTerm(event.target.value);
+    applyFilters(event.target.value, filters);
+  };
+
+  const calculateTotalPages = (filteredRooms) => {
+    return Math.ceil(filteredRooms.length / roomsPerPage);
+  };
   
-    const calculateTotalPages = (filteredRooms) => {
-  return Math.ceil(filteredRooms.length / roomsPerPage);
-};
-  
-const applyFilters = (searchTerm, filters) => {
+  const isRoomOpen = (room) => {
+    return room.maxParticipants === room.participants;
+  };
+
+ const applyFilters = (searchTerm, filters) => {
   const filteredRooms = initialRooms
     .filter((room) => {
-      if (filters.republican && room.stance.party !== "Republican") return false;
-      if (filters.democrat && room.stance.party !== "Democrat") return false;
+      if (filters.republican) {
+        return (
+          room.stance.party === "Republican" && room.stance.percentage > 25
+        );
+      }
+      if (filters.democrat) {
+        return (
+          room.stance.party === "Democrat" && room.stance.percentage > 25
+        );
+      }
       if (
         filters.centrist &&
         !(
-          (room.stance.party === "Democrat" && room.stance.percentage <= 30) ||
-          (room.stance.party === "Republican" && room.stance.percentage <= 30)
+          (room.stance.party === "Democrat" &&
+            room.stance.percentage <= 25) ||
+          (room.stance.party === "Republican" &&
+            room.stance.percentage <= 25)
         )
-      )
+      ) {
         return false;
-      if (filters.open && room.participants === room.maxParticipants)
+      }
+      if (filters.open && isRoomOpen(room))
         return false;
       return true;
     })
@@ -115,8 +130,6 @@ const applyFilters = (searchTerm, filters) => {
 
   setRooms(filteredRooms);
 };
-  
-
 
   const getPagination = () => {
     const pages = [];
@@ -159,7 +172,6 @@ const applyFilters = (searchTerm, filters) => {
   const handlePageChange = (page) => {
     setCurrentPage(page);
   };
-  
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
@@ -215,93 +227,81 @@ const applyFilters = (searchTerm, filters) => {
             />
           </div>
         </div>
-        
-        
-        
-        
-          {/* Filters */}
-     <div className="flex space-x-4 my-4">
-  {/* Republican Filter */}
-  <button
-    className={`px-4 py-2 rounded-full text-sm font-medium ${
-      filters.republican
-        ? "bg-red-500/20 text-red-300 border border-red-500/30"
-        : "bg-gray-500/20 text-gray-400 border border-gray-500/30"
-    }`}
-    onClick={() => {
-      const newFilters = {
-        ...filters,
-        republican: !filters.republican,
-        democrat: false,
-        centrist: false, // Turn off Centrist if Republican is selected
-      };
-      setFilters(newFilters);
-      applyFilters(searchTerm, newFilters);
-    }}
-  >
-    Republican
-  </button>
 
-  {/* Democrat Filter */}
-  <button
-    className={`px-4 py-2 rounded-full text-sm font-medium ${
-      filters.democrat
-        ? "bg-blue-500/20 text-blue-300 border border-blue-500/30"
-        : "bg-gray-500/20 text-gray-400 border border-gray-500/30"
-    }`}
-    onClick={() => {
-      const newFilters = {
-        ...filters,
-        democrat: !filters.democrat,
-        republican: false,
-        centrist: false, // Turn off Centrist if Democrat is selected
-      };
-      setFilters(newFilters);
-      applyFilters(searchTerm, newFilters);
-    }}
-  >
-    Democrat
-  </button>
-
-  {/* Centrist Filter */}
-  <button
-    className={`px-4 py-2 rounded-full text-sm font-medium ${
-      filters.centrist
-        ? "bg-purple-500/20 text-purple-300 border border-purple-500/30"
-        : "bg-gray-500/20 text-gray-400 border border-gray-500/30"
-    }`}
-    onClick={() => {
-      const newFilters = {
-        ...filters,
-        centrist: !filters.centrist,
-        republican: false, // Turn off other filters
-        democrat: false,
-      };
-      setFilters(newFilters);
-      applyFilters(searchTerm, newFilters);
-    }}
-  >
-    Centrist
-  </button>
-
-  {/* Open Filter */}
-  <button
-    className={`px-4 py-2 rounded-full text-sm font-medium ${
-      filters.open
-        ? "bg-green-500/20 text-green-300 border border-green-500/30"
-        : "bg-gray-500/20 text-gray-400 border border-gray-500/30"
-    }`}
-    onClick={() => {
-      const newFilters = { ...filters, open: !filters.open };
-      setFilters(newFilters);
-      applyFilters(searchTerm, newFilters);
-    }}
-  >
-    Open
-  </button>
-</div>
-        
-        
+        {/* Filters */}
+        <div className="flex space-x-4 my-4">
+          <button
+            className={`px-4 py-2 rounded-full text-sm font-medium ${
+              filters.republican
+                ? "bg-red-500/20 text-red-300 border border-red-500/30"
+                : "bg-gray-500/20 text-gray-400 border border-gray-500/30"
+            }`}
+            onClick={() => {
+              const newFilters = {
+                ...filters,
+                republican: !filters.republican,
+                democrat: false,
+                centrist: false, // Turn off Centrist if Republican is selected
+              };
+              setFilters(newFilters);
+              applyFilters(searchTerm, newFilters);
+            }}
+          >
+            Republican
+          </button>
+          <button
+            className={`px-4 py-2 rounded-full text-sm font-medium ${
+              filters.democrat
+                ? "bg-blue-500/20 text-blue-300 border border-blue-500/30"
+                : "bg-gray-500/20 text-gray-400 border border-gray-500/30"
+            }`}
+            onClick={() => {
+              const newFilters = {
+                ...filters,
+                democrat: !filters.democrat,
+                republican: false,
+                centrist: false, // Turn off Centrist if Democrat is selected
+              };
+              setFilters(newFilters);
+              applyFilters(searchTerm, newFilters);
+            }}
+          >
+            Democrat
+          </button>
+          <button
+            className={`px-4 py-2 rounded-full text-sm font-medium ${
+              filters.centrist
+                ? "bg-purple-500/20 text-purple-300 border border-purple-500/30"
+                : "bg-gray-500/20 text-gray-400 border border-gray-500/30"
+            }`}
+            onClick={() => {
+              const newFilters = {
+                ...filters,
+                centrist: !filters.centrist,
+                republican: false, // Turn off other filters
+                democrat: false,
+              };
+              setFilters(newFilters);
+              applyFilters(searchTerm, newFilters);
+            }}
+          >
+            Centrist
+          </button>
+          <button
+            className={`px-4 py-2 rounded-full text-sm font-medium ${
+              filters.open
+                ? "bg-green-500/20 text-green-300 border border-green-500/30"
+                : "bg-gray-500/20 text-gray-400 border border-gray-500/30"
+            }`}
+            onClick={() => {
+              const newFilters = { ...filters, open: !filters.open };
+              setFilters(newFilters);
+              applyFilters(searchTerm, newFilters);
+            }}
+          >
+            Open
+          </button>
+        </div>
 
         {/* Table */}
         <div className="bg-gray-800/50 backdrop-blur-sm rounded-lg shadow-xl border border-gray-700 overflow-hidden">
@@ -360,8 +360,10 @@ const applyFilters = (searchTerm, filters) => {
                       <div className="flex items-center space-x-3">
                         <div
                           className={`w-2 h-2 rounded-full ${
-                            room.maxParticipants - room.participants < 1
+                            isRoomOpen(room)
                               ? "bg-gray-400"
+                              : room.stance.percentage <= 25
+                              ? "bg-purple-400"
                               : room.stance.party === "Republican"
                               ? "bg-red-400"
                               : "bg-blue-400"
@@ -377,15 +379,17 @@ const applyFilters = (searchTerm, filters) => {
                         className={`px-3 py-1 rounded-full text-xs font-medium w-24 flex justify-center items-center bg-gray-500/20 text-gray-400 border border-gray-500/30`}
                       >
                         {room.participants}/{room.maxParticipants}{" "}
-                        {room.maxParticipants - room.participants === 0
-                          ? "Full"
-                          : "Open"}
+                        {isRoomOpen
+                          ? "Open"
+                          : "Full"}
                       </span>
                     </td>
                     <td className="px-6 py-4 text-center w-1/5">
                       <span
                         className={`px-3 py-1 rounded-full text-xs font-medium w-32 inline-block text-center ${
-                          room.stance.party === "Democrat"
+                          room.stance.percentage <= 25
+                            ? "bg-purple-500/20 text-purple-300 border border-purple-500/30"
+                            : room.stance.party === "Democrat"
                             ? "bg-blue-500/20 text-blue-300 border border-blue-500/30"
                             : "bg-red-500/20 text-red-300 border border-red-500/30"
                         }`}
@@ -401,17 +405,18 @@ const applyFilters = (searchTerm, filters) => {
                     <td className="px-6 py-4 text-right w-1/5">
                       <button
                         className={`w-24 px-4 py-1.5 rounded-lg transition-all duration-300 ${
-                          room.maxParticipants - room.participants === 0
+                          !isRoomOpen
+                            ? "bg-gradient-to-r from-blue-500 to-blue-600 hover:shadow-lg hover:shadow-blue-500/20 text-white"
                             ? "bg-gray-700 cursor-not-allowed text-gray-400"
-                            : "bg-gradient-to-r from-blue-500 to-blue-600 hover:shadow-lg hover:shadow-blue-500/20 text-white"
+                            : 
                         }`}
                         disabled={
-                          room.maxParticipants - room.participants === 0
+                          !isRoomOpen
                         }
                       >
-                        {room.maxParticipants - room.participants === 0
-                          ? "Full"
-                          : "Join"}
+                        {isRoomOpen
+                          ? "Join"
+                          : "Full"}
                       </button>
                     </td>
                   </tr>
