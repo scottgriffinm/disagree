@@ -210,10 +210,8 @@ const DisagreePlatform = () => {
               <div className="flex items-center space-x-3">
                 <div
                   className={`w-2 h-2 rounded-full ${
-                    room.activity === "high"
+                    room.maxParticipants - room.participants >= 1
                       ? "bg-green-400"
-                      : room.activity === "medium"
-                      ? "bg-yellow-400"
                       : "bg-gray-400"
                   }`}
                 />
@@ -223,15 +221,15 @@ const DisagreePlatform = () => {
               </div>
             </td>
             <td className="px-6 py-4 text-center">
-              <span 
-                className={`px-3 py-1 rounded-full text-xs font-medium w-24 flex justify-center items-center ${
-                  room.status === 'open' 
-                    ? 'bg-blue-500/20 text-blue-300 border border-blue-500/30' 
-                    : 'bg-purple-500/20 text-purple-300 border border-purple-500/30'
-                }`}
-              >
-                {room.participants}/{room.maxParticipants} {room.status === "open" ? "Open" : "Full"}
-              </span>
+             <span 
+  className={`px-3 py-1 rounded-full text-xs font-medium w-24 flex justify-center items-center ${
+    room.status === 'open' 
+      ? 'bg-blue-500/20 text-blue-300 border border-blue-500/30'
+      : 'bg-gray-500/20 text-gray-300 border border-gray-500/30'
+  }`}
+>
+  {room.participants}/{room.maxParticipants} {room.status === "open" ? "Open" : "Full"}
+</span>
             </td>
             <td className="px-6 py-4 text-center">
               <span 
