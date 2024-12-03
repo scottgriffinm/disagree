@@ -17,9 +17,8 @@ const DisagreePlatform = () => {
   });
   const [currentPage, setCurrentPage] = useState(1);
   const roomsPerPage = 5;
-  
-  
-   useEffect(() => {
+    
+  useEffect(() => {
     const fetchRooms = async () => {
       try {
         const response = await fetch('/api/rooms');
@@ -29,7 +28,7 @@ const DisagreePlatform = () => {
         console.error("Error fetching rooms:", error);
       }
     };
-
+    
     fetchRooms();
   }, []);
 
