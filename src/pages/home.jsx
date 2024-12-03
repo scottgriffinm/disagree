@@ -1,9 +1,15 @@
 import React, { useState, useEffect } from "react";
 import { Search, ArrowUpDown, Plus, Globe } from "lucide-react";
+import { io } from "socket.io-client";
 
 const DisagreePlatform = () => {
   const [allRooms, setAllRooms] = useState([]);
   const [rooms, setRooms] = useState([]);
+    const [stats, setStats] = useState({
+    usersOnline: 0,
+    activeDebates: 0,
+    debatesToday: 0,
+  });
   const [searchTerm, setSearchTerm] = useState("");
   const [sortConfig, setSortConfig] = useState({
     key: "participants",
@@ -30,7 +36,27 @@ const DisagreePlatform = () => {
       }
     };
 
+    const fetchStats = async () => {
+      try {
+        const response = await fetch("/api/stats");
+        var data = await response.json();
+        data.usersOnline = data.usersOnline + 1; // + 1 hack to count user
+        setStats(data);
+      } catch (error) {
+        console.error("Error fetching stats:", error);
+      }
+    };
+
     fetchRooms();
+    fetchStats();
+
+    // Socket.IO connection
+    const socket = io();
+
+    // Clean up socket connection on component unmount
+    return () => {
+      socket.disconnect();
+    };
   }, []);
 
   const formatTimeAgo = (dateString) => {
@@ -198,18 +224,18 @@ const DisagreePlatform = () => {
           </a>
         </div>
 
-        {/* Stats */}
+          {/* Stats */}
         <div className="grid grid-cols-3 gap-4 mb-8">
           <div className="bg-gray-800/50 backdrop-blur-sm rounded-lg p-4 border border-gray-700 flex flex-col items-center justify-center text-center">
-            <div className="text-2xl font-bold text-gray-100">24</div>
+            <div className="text-2xl font-bold text-gray-100">{stats.activeDebates}</div>
             <div className="text-sm text-gray-400">Active Debates</div>
           </div>
           <div className="bg-gray-800/50 backdrop-blur-sm rounded-lg p-4 border border-gray-700 flex flex-col items-center justify-center text-center">
-            <div className="text-2xl font-bold text-gray-100">142</div>
+            <div className="text-2xl font-bold text-gray-100">{stats.usersOnline}</div>
             <div className="text-sm text-gray-400">Users Online</div>
           </div>
           <div className="bg-gray-800/50 backdrop-blur-sm rounded-lg p-4 border border-gray-700 flex flex-col items-center justify-center text-center">
-            <div className="text-2xl font-bold text-gray-100">1,287</div>
+            <div className="text-2xl font-bold text-gray-100">{stats.debatesToday}</div>
             <div className="text-sm text-gray-400">Debates Today</div>
           </div>
         </div>
