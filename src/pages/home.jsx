@@ -112,11 +112,6 @@ const DisagreePlatform = () => {
               room.stance.percentage <= 25);
         }
 
-        // Apply the open filter if selected
-        if (filters.open) {
-          matchesFilter = matchesFilter && isRoomOpen(room);
-        }
-
         return matchesFilter;
       })
       .filter((room) =>

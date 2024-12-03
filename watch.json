@@ -7,7 +7,7 @@
   },
   "restart": {
     "include": [
-      "^backend/"
+      "^server/"
     ],
     "exclude": [
       "src/" 
