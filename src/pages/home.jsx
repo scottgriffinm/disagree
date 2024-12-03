@@ -189,12 +189,12 @@ const DisagreePlatform = () => {
               </h1>
             </a>
           </div>
-          <a href="/create" className="group bg-gradient-to-r from-blue-500 to-purple-500 px-4 py-2 rounded-lg transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/20 flex items-center space-x-2 text-white">
-            <Plus
-              size={20}
-              className="transform group-hover:rotate-90 transition-transform duration-300"
-            />
-          </a>
+         <a 
+  href="/create" 
+  className="flex items-center space-x-2 px-4 py-2 rounded-lg bg-gray-800/50 text-gray-300 border border-gray-700 hover:bg-gray-700/50 transition-colors"
+>
+  <Plus size={20} />
+</a>
         </div>
 
         {/* Stats */}
@@ -411,16 +411,16 @@ const DisagreePlatform = () => {
                       </span>
                     </td>
                     <td className="px-6 py-4 text-right w-1/5">
-                      <button
-                        className={`w-24 px-4 py-1.5 rounded-lg transition-all duration-300 ${
-                          isRoomOpen(room)
-                            ? "bg-gradient-to-r from-blue-500 to-blue-600 hover:shadow-lg hover:shadow-blue-500/20 text-white"
-                            : "bg-gray-700 cursor-not-allowed text-gray-400"
-                        }`}
-                        disabled={!isRoomOpen(room)}
-                      >
-                        {isRoomOpen(room) ? "Join" : "Full"}
-                      </button>
+                     <button
+  className={`flex items-center justify-center space-x-2 px-6 py-2 w-28 rounded-lg transition-all ${
+    isRoomOpen(room)
+      ? "bg-gray-800/50 text-gray-300 border border-gray-700 hover:bg-gray-700/50"
+      : "bg-gray-700 text-gray-400 cursor-not-allowed"
+  }`}
+  disabled={!isRoomOpen(room)}
+>
+  <span>{isRoomOpen(room) ? "Join" : "Full"}</span>
+</button>
                     </td>
                   </tr>
                 ))}
@@ -430,27 +430,27 @@ const DisagreePlatform = () => {
         </div>
 
         {/* Pagination */}
-        <div className="flex justify-center mt-8">
-          {getPagination().map((page, index) =>
-            page === "..." ? (
-              <span key={index} className="px-4 py-2 mx-1 text-gray-400">
-                ...
-              </span>
-            ) : (
-              <button
-                key={index}
-                className={`px-4 py-2 mx-1 rounded-lg ${
-                  currentPage === page
-                    ? "bg-blue-500 text-white"
-                    : "bg-gray-700 text-gray-300"
-                }`}
-                onClick={() => handlePageChange(page)}
-              >
-                {page}
-              </button>
-            )
-          )}
-        </div>
+        <div className="flex justify-center mt-4">
+  {getPagination().map((page, index) =>
+    page === "..." ? (
+      <span key={index} className="px-4 py-2 mx-1 text-gray-400">
+        ...
+      </span>
+    ) : (
+      <button
+        key={index}
+        className={`flex items-center justify-center px-4 py-2 mx-1 rounded-lg ${
+          currentPage === page
+            ? "bg-gray-800/50 text-gray-300 border border-gray-700 hover:bg-gray-700/50"
+            : "bg-gray-700 text-gray-300 hover:bg-gray-800/50"
+        }`}
+        onClick={() => handlePageChange(page)}
+      >
+        {page}
+      </button>
+    )
+  )}
+</div>
       </div>
     </div>
   );

@@ -135,11 +135,11 @@ const CreateRoom = () => {
             </div>
 
             <button
-              type="submit"
-              className="w-full bg-gradient-to-r from-blue-500 to-purple-500 text-white py-3 rounded-lg hover:shadow-lg hover:shadow-blue-500/20 transition-all duration-300"
-            >
-              Create Room
-            </button>
+  type="submit"
+  className="w-full flex items-center justify-center px-6 py-3 rounded-lg bg-gray-800/50 text-gray-300 border border-gray-700 hover:bg-gray-700/50 transition-colors"
+>
+  <span>Create Room</span>
+</button>
           </form>
         </div>
       </div>
