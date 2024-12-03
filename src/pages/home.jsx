@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Search, ArrowUpDown, Plus, Globe } from "lucide-react";
 
 const DisagreePlatform = () => {
-
+  const [allRooms, setAllRooms] = useState([]);
   const [rooms, setRooms] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [sortConfig, setSortConfig] = useState({
@@ -23,7 +23,8 @@ const DisagreePlatform = () => {
       try {
         const response = await fetch('/api/rooms');
         const data = await response.json();
-        setRooms(data.sort((a, b) => a.participants - b.participants));
+         setAllRooms(data.sort((a, b) => a.participants - b.participants)); // Set all rooms
+        setRooms(data.sort((a, b) => a.participants - b.participants)); 
       } catch (error) {
         console.error("Error fetching rooms:", error);
       }
