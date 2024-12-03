@@ -88,7 +88,7 @@ const CreateRoom = () => {
                 value={formData.topic}
                 onChange={handleTopicChange}
                 className="w-full bg-gray-900/50 border border-gray-700 rounded-lg py-2 px-4 text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all"
-                placeholder="e.g., Should pineapple be on pizza?"
+                placeholder="e.g., Free speech online"
               />
               {showError && formData.topic.length === 0 && (
                 <p className="text-red-400 text-sm mt-1">* Please enter a topic title</p>
@@ -103,10 +103,6 @@ const CreateRoom = () => {
                 </span>
               </div>
               <div className="relative">
-                <div className="absolute w-full flex justify-between text-xs text-gray-400 mb-1">
-                  <span>100% Democrat</span>
-                  <span>100% Republican</span>
-                </div>
                 <input
                   type="range"
                   value={formData.stanceValue}
