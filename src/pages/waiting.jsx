@@ -71,8 +71,8 @@ const VoiceCallWaiting = () => {
         const randomIndex = Math.floor(Math.random() * messages.length);
         setCurrentMessage(messages[randomIndex]);
         setFade(true); // Start fade in
-      }, 4000); // Fade out duration (3 seconds)
-    }, 10000); // 10-second interval
+      }, 4000); // Fade out duration
+    }, 12000); // 12-second interval
 
     return () => clearInterval(interval);
   }, []);
@@ -131,7 +131,7 @@ const VoiceCallWaiting = () => {
               </div>
               {/* Message */}
               <div
-                className={`text-lg text-gray-300 transition-opacity duration-4000 w-3/4 text-center ${
+                className={`text-lg text-gray-300 transition-opacity duration-6000 w-3/4 text-center ${
                   fade ? "opacity-100" : "opacity-0"
                 }`}
                 style={{ minHeight: "4rem" }} // Maintain space for multi-line quotes
