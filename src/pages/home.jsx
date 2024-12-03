@@ -17,19 +17,19 @@ const DisagreePlatform = () => {
   });
   const [currentPage, setCurrentPage] = useState(1);
   const roomsPerPage = 5;
-    
+
   useEffect(() => {
     const fetchRooms = async () => {
       try {
-        const response = await fetch('/api/rooms');
+        const response = await fetch("/api/rooms");
         const data = await response.json();
-         setAllRooms(data.sort((a, b) => a.participants - b.participants)); // Set all rooms
-        setRooms(data.sort((a, b) => a.participants - b.participants)); 
+        setAllRooms(data.sort((a, b) => a.participants - b.participants)); // Set all rooms
+        setRooms(data.sort((a, b) => a.participants - b.participants));
       } catch (error) {
         console.error("Error fetching rooms:", error);
       }
     };
-    
+
     fetchRooms();
   }, []);
 
@@ -116,7 +116,8 @@ const DisagreePlatform = () => {
 
         // Apply the open filter if selected
         if (filters.open) {
-          matchesFilter = matchesFilter && room.maxParticipants > room.participants;
+          matchesFilter =
+            matchesFilter && room.maxParticipants > room.participants;
         }
 
         return matchesFilter;
@@ -189,12 +190,12 @@ const DisagreePlatform = () => {
               </h1>
             </a>
           </div>
-         <a 
-  href="/create" 
-  className="flex items-center space-x-2 px-4 py-2 rounded-lg bg-gray-800/50 text-gray-300 border border-gray-700 hover:bg-gray-700/50 transition-colors"
->
-  <Plus size={20} />
-</a>
+          <a
+            href="/create"
+            className="flex items-center space-x-2 px-4 py-2 rounded-lg bg-gray-800/50 text-gray-300 border border-gray-700 hover:bg-gray-700/50 transition-colors"
+          >
+            <Plus size={20} />
+          </a>
         </div>
 
         {/* Stats */}
@@ -233,82 +234,82 @@ const DisagreePlatform = () => {
               size={20}
             />
           </div>
-        {/* Filters */}
-<div className="relative max-w-full overflow-x-auto scrollbar-hide">
-  <div className="flex space-x-4">
-    <button
-      className={`px-4 py-2 rounded-full text-sm font-medium ${
-        filters.republican
-          ? "bg-red-500/20 text-red-300 border border-red-500/30"
-          : "bg-gray-500/20 text-gray-400 border border-gray-500/30"
-      }`}
-      onClick={() => {
-        const newFilters = {
-          ...filters,
-          republican: !filters.republican,
-          democrat: false,
-          centrist: false,
-        };
-        setFilters(newFilters);
-        applyFilters(searchTerm, newFilters);
-      }}
-    >
-      Republican
-    </button>
-    <button
-      className={`px-4 py-2 rounded-full text-sm font-medium ${
-        filters.democrat
-          ? "bg-blue-500/20 text-blue-300 border border-blue-500/30"
-          : "bg-gray-500/20 text-gray-400 border border-gray-500/30"
-      }`}
-      onClick={() => {
-        const newFilters = {
-          ...filters,
-          democrat: !filters.democrat,
-          republican: false,
-          centrist: false,
-        };
-        setFilters(newFilters);
-        applyFilters(searchTerm, newFilters);
-      }}
-    >
-      Democrat
-    </button>
-    <button
-      className={`px-4 py-2 rounded-full text-sm font-medium ${
-        filters.centrist
-          ? "bg-purple-500/20 text-purple-300 border border-purple-500/30"
-          : "bg-gray-500/20 text-gray-400 border border-gray-500/30"
-      }`}
-      onClick={() => {
-        const newFilters = {
-          ...filters,
-          centrist: !filters.centrist,
-          republican: false,
-          democrat: false,
-        };
-        setFilters(newFilters);
-        applyFilters(searchTerm, newFilters);
-      }}
-    >
-      Centrist
-    </button>
-    <button
-      className={`px-4 py-2 rounded-full text-sm font-medium ${
-        filters.open
-          ? "bg-green-500/20 text-green-300 border border-green-500/30"
-          : "bg-gray-500/20 text-gray-400 border border-gray-500/30"
-      }`}
-      onClick={() => {
-        const newFilters = { ...filters, open: !filters.open };
-        setFilters(newFilters);
-        applyFilters(searchTerm, newFilters);
-      }}
-    >
-      Open
-    </button>
-  </div>
-</div>
+          {/* Filters */}
+          <div className="relative max-w-full overflow-x-auto scrollbar-hide">
+            <div className="flex space-x-4">
+              <button
+                className={`px-4 py-2 rounded-full text-sm font-medium ${
+                  filters.republican
+                    ? "bg-red-500/20 text-red-300 border border-red-500/30"
+                    : "bg-gray-500/20 text-gray-400 border border-gray-500/30"
+                }`}
+                onClick={() => {
+                  const newFilters = {
+                    ...filters,
+                    republican: !filters.republican,
+                    democrat: false,
+                    centrist: false,
+                  };
+                  setFilters(newFilters);
+                  applyFilters(searchTerm, newFilters);
+                }}
+              >
+                Republican
+              </button>
+              <button
+                className={`px-4 py-2 rounded-full text-sm font-medium ${
+                  filters.democrat
+                    ? "bg-blue-500/20 text-blue-300 border border-blue-500/30"
+                    : "bg-gray-500/20 text-gray-400 border border-gray-500/30"
+                }`}
+                onClick={() => {
+                  const newFilters = {
+                    ...filters,
+                    democrat: !filters.democrat,
+                    republican: false,
+                    centrist: false,
+                  };
+                  setFilters(newFilters);
+                  applyFilters(searchTerm, newFilters);
+                }}
+              >
+                Democrat
+              </button>
+              <button
+                className={`px-4 py-2 rounded-full text-sm font-medium ${
+                  filters.centrist
+                    ? "bg-purple-500/20 text-purple-300 border border-purple-500/30"
+                    : "bg-gray-500/20 text-gray-400 border border-gray-500/30"
+                }`}
+                onClick={() => {
+                  const newFilters = {
+                    ...filters,
+                    centrist: !filters.centrist,
+                    republican: false,
+                    democrat: false,
+                  };
+                  setFilters(newFilters);
+                  applyFilters(searchTerm, newFilters);
+                }}
+              >
+                Centrist
+              </button>
+              <button
+                className={`px-4 py-2 rounded-full text-sm font-medium ${
+                  filters.open
+                    ? "bg-green-500/20 text-green-300 border border-green-500/30"
+                    : "bg-gray-500/20 text-gray-400 border border-gray-500/30"
+                }`}
+                onClick={() => {
+                  const newFilters = { ...filters, open: !filters.open };
+                  setFilters(newFilters);
+                  applyFilters(searchTerm, newFilters);
+                }}
+              >
+                Open
+              </button>
+            </div>
+          </div>
         </div>
 
         {/* Table Section */}
@@ -388,7 +389,6 @@ const DisagreePlatform = () => {
                       <span
                         className={`px-3 py-1 rounded-full text-xs font-medium w-24 flex justify-center items-center bg-gray-500/20 text-gray-400 border border-gray-500/30`}
                       >
-                        {room.participants}/{room.maxParticipants}{" "}
                         {isRoomOpen(room) ? "Open" : "Full"}
                       </span>
                     </td>
@@ -411,16 +411,16 @@ const DisagreePlatform = () => {
                       </span>
                     </td>
                     <td className="px-6 py-4 text-right w-1/5">
-                     <button
-  className={`flex items-center justify-center space-x-2 px-6 py-2 w-28 rounded-lg transition-all ${
-    isRoomOpen(room)
-      ? "bg-gray-800/50 text-gray-300 border border-gray-700 hover:bg-gray-700/50"
-      : "bg-gray-700 text-gray-400 cursor-not-allowed"
-  }`}
-  disabled={!isRoomOpen(room)}
->
-  <span>{isRoomOpen(room) ? "Join" : "Full"}</span>
-</button>
+                      <button
+                        className={`flex items-center justify-center space-x-2 px-6 py-2 w-28 rounded-lg transition-all ${
+                          isRoomOpen(room)
+                            ? "bg-gray-800/50 text-gray-300 border border-gray-700 hover:bg-gray-700/50"
+                            : "bg-gray-700 text-gray-400 cursor-not-allowed"
+                        }`}
+                        disabled={!isRoomOpen(room)}
+                      >
+                        <span>{isRoomOpen(room) ? "Join" : "Full"}</span>
+                      </button>
                     </td>
                   </tr>
                 ))}
@@ -431,26 +431,26 @@ const DisagreePlatform = () => {
 
         {/* Pagination */}
         <div className="flex justify-center mt-4">
-  {getPagination().map((page, index) =>
-    page === "..." ? (
-      <span key={index} className="px-4 py-2 mx-1 text-gray-400">
-        ...
-      </span>
-    ) : (
-      <button
-        key={index}
-        className={`flex items-center justify-center px-4 py-2 mx-1 rounded-lg ${
-          currentPage === page
-            ? "bg-gray-800/50 text-gray-300 border border-gray-700 hover:bg-gray-700/50"
-            : "bg-gray-700 text-gray-300 hover:bg-gray-800/50"
-        }`}
-        onClick={() => handlePageChange(page)}
-      >
-        {page}
-      </button>
-    )
-  )}
-</div>
+          {getPagination().map((page, index) =>
+            page === "..." ? (
+              <span key={index} className="px-4 py-2 mx-1 text-gray-400">
+                ...
+              </span>
+            ) : (
+              <button
+                key={index}
+                className={`flex items-center justify-center px-4 py-2 mx-1 rounded-lg ${
+                  currentPage === page
+                    ? "bg-gray-800/50 text-gray-300 border border-gray-700 hover:bg-gray-700/50"
+                    : "bg-gray-700 text-gray-300 hover:bg-gray-800/50"
+                }`}
+                onClick={() => handlePageChange(page)}
+              >
+                {page}
+              </button>
+            )
+          )}
+        </div>
       </div>
     </div>
   );
