@@ -95,7 +95,7 @@ const DisagreePlatform = () => {
   };
 
   const applyFilters = (searchTerm, filters) => {
-    const filteredRooms = rooms
+    const filteredRooms = allRooms // Use allRooms as the source
       .filter((room) => {
         let matchesFilter = true;
 
@@ -116,7 +116,7 @@ const DisagreePlatform = () => {
 
         // Apply the open filter if selected
         if (filters.open) {
-          matchesFilter = matchesFilter && isRoomOpen(room);
+          matchesFilter = matchesFilter && room.maxParticipants > room.participants;
         }
 
         return matchesFilter;
@@ -125,14 +125,13 @@ const DisagreePlatform = () => {
         room.name.toLowerCase().startsWith(searchTerm.toLowerCase())
       );
 
+    setRooms(filteredRooms);
     const totalPages = calculateTotalPages(filteredRooms);
 
     // Adjust current page if it's invalid for the filtered result
     if (currentPage > totalPages) {
       setCurrentPage(1); // Reset to the first page
     }
-
-    setRooms(filteredRooms);
   };
 
   const getPagination = () => {

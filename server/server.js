@@ -19,7 +19,7 @@ app.get('/api/rooms', (req, res) => {
     participants: Math.max(Math.floor(Math.random() * 3), 1),
     maxParticipants: 2,
     created: new Date(
-      Date.now() - Math.floor(Math.random() * 1000000000)
+      Date.now() - Math.floor(Math.random() * 1000000)
     ).toISOString(),
   }));
 
