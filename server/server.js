@@ -5,11 +5,8 @@ const app = express();
 // Serve React app
 app.use(express.static(path.join(__dirname, '../build')));
 
-// API to provide topic room data
-app.get('/api/rooms', (req, res) => {
-  console.log('test');
-  console.log('/api/rooms');
-  const rooms = Array.from({ length: 55 }, (_, index) => ({
+
+var rooms = Array.from({ length: 55 }, (_, index) => ({
     id: index + 1,
     name: `Topic Room ${index + 1}`,
     stance: {
@@ -23,6 +20,11 @@ app.get('/api/rooms', (req, res) => {
     ).toISOString(),
   }));
 
+
+// API to provide topic room data
+app.get('/api/rooms', (req, res) => {
+  console.log('test');
+  console.log('/api/rooms');
   res.json(rooms);
 });
 
