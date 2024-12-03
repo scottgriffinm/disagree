@@ -12,7 +12,8 @@ const DisagreePlatform = () => {
   const [filters, setFilters] = useState({
     republican: false,
     democrat: false,
-    centrist: false,
+    open: false,
+    centrist: false, // New Centrist filter
   });
   const [currentPage, setCurrentPage] = useState(1);
   const roomsPerPage = 5;
@@ -110,6 +111,11 @@ const DisagreePlatform = () => {
               room.stance.percentage <= 25) ||
             (room.stance.party === "Republican" &&
               room.stance.percentage <= 25);
+        }
+
+        // Apply the open filter if selected
+        if (filters.open) {
+          matchesFilter = matchesFilter && isRoomOpen(room);
         }
 
         return matchesFilter;
@@ -228,68 +234,82 @@ const DisagreePlatform = () => {
               size={20}
             />
           </div>
-          {/* Filters */}
-          <div className="flex space-x-4">
-            {" "}
-            {/* Reduced margin below filters */}
-            <button
-              className={`px-4 py-2 rounded-full text-sm font-medium ${
-                filters.republican
-                  ? "bg-red-500/20 text-red-300 border border-red-500/30"
-                  : "bg-gray-500/20 text-gray-400 border border-gray-500/30"
-              }`}
-              onClick={() => {
-                const newFilters = {
-                  ...filters,
-                  republican: !filters.republican,
-                  democrat: false,
-                  centrist: false,
-                };
-                setFilters(newFilters);
-                applyFilters(searchTerm, newFilters);
-              }}
-            >
-              Republican
-            </button>
-            <button
-              className={`px-4 py-2 rounded-full text-sm font-medium ${
-                filters.democrat
-                  ? "bg-blue-500/20 text-blue-300 border border-blue-500/30"
-                  : "bg-gray-500/20 text-gray-400 border border-gray-500/30"
-              }`}
-              onClick={() => {
-                const newFilters = {
-                  ...filters,
-                  democrat: !filters.democrat,
-                  republican: false,
-                  centrist: false,
-                };
-                setFilters(newFilters);
-                applyFilters(searchTerm, newFilters);
-              }}
-            >
-              Democrat
-            </button>
-            <button
-              className={`px-4 py-2 rounded-full text-sm font-medium ${
-                filters.centrist
-                  ? "bg-purple-500/20 text-purple-300 border border-purple-500/30"
-                  : "bg-gray-500/20 text-gray-400 border border-gray-500/30"
-              }`}
-              onClick={() => {
-                const newFilters = {
-                  ...filters,
-                  centrist: !filters.centrist,
-                  republican: false,
-                  democrat: false,
-                };
-                setFilters(newFilters);
-                applyFilters(searchTerm, newFilters);
-              }}
-            >
-              Centrist
-            </button>
-          </div>
+        {/* Filters */}
+<div className="relative max-w-full overflow-x-auto scrollbar-hide">
+  <div className="flex space-x-4">
+    <button
+      className={`px-4 py-2 rounded-full text-sm font-medium ${
+        filters.republican
+          ? "bg-red-500/20 text-red-300 border border-red-500/30"
+          : "bg-gray-500/20 text-gray-400 border border-gray-500/30"
+      }`}
+      onClick={() => {
+        const newFilters = {
+          ...filters,
+          republican: !filters.republican,
+          democrat: false,
+          centrist: false,
+        };
+        setFilters(newFilters);
+        applyFilters(searchTerm, newFilters);
+      }}
+    >
+      Republican
+    </button>
+    <button
+      className={`px-4 py-2 rounded-full text-sm font-medium ${
+        filters.democrat
+          ? "bg-blue-500/20 text-blue-300 border border-blue-500/30"
+          : "bg-gray-500/20 text-gray-400 border border-gray-500/30"
+      }`}
+      onClick={() => {
+        const newFilters = {
+          ...filters,
+          democrat: !filters.democrat,
+          republican: false,
+          centrist: false,
+        };
+        setFilters(newFilters);
+        applyFilters(searchTerm, newFilters);
+      }}
+    >
+      Democrat
+    </button>
+    <button
+      className={`px-4 py-2 rounded-full text-sm font-medium ${
+        filters.centrist
+          ? "bg-purple-500/20 text-purple-300 border border-purple-500/30"
+          : "bg-gray-500/20 text-gray-400 border border-gray-500/30"
+      }`}
+      onClick={() => {
+        const newFilters = {
+          ...filters,
+          centrist: !filters.centrist,
+          republican: false,
+          democrat: false,
+        };
+        setFilters(newFilters);
+        applyFilters(searchTerm, newFilters);
+      }}
+    >
+      Centrist
+    </button>
+    <button
+      className={`px-4 py-2 rounded-full text-sm font-medium ${
+        filters.open
+          ? "bg-green-500/20 text-green-300 border border-green-500/30"
+          : "bg-gray-500/20 text-gray-400 border border-gray-500/30"
+      }`}
+      onClick={() => {
+        const newFilters = { ...filters, open: !filters.open };
+        setFilters(newFilters);
+        applyFilters(searchTerm, newFilters);
+      }}
+    >
+      Open
+    </button>
+  </div>
+</div>
         </div>
 
         {/* Table Section */}
