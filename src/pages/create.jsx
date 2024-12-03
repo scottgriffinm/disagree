@@ -1,14 +1,14 @@
-import React, { useState, useEffect } from 'react';
-import { Globe, ArrowLeft } from 'lucide-react';
+import React, { useState, useEffect } from "react";
+import { Globe, ArrowLeft } from "lucide-react";
 
 const CreateRoom = () => {
   const [formData, setFormData] = useState({
-    topic: '',
-    stanceValue: 1 // -100 to -1 is Democrat, 1 to 100 is Republican
+    topic: "",
+    stanceValue: 1, // -100 to -1 is Democrat, 1 to 100 is Republican
   });
-  
+
   const [showError, setShowError] = useState(false);
-  const [placeholderTopic, setPlaceholderTopic] = useState('');
+  const [placeholderTopic, setPlaceholderTopic] = useState("");
 
   const topics = [
     "Censorship online",
@@ -19,11 +19,10 @@ const CreateRoom = () => {
     "Age limit in politics",
     "Illegal immigration",
     "Polygamy is harmful to society",
-    "War in Palestine"
+    "War in Palestine",
   ];
 
   useEffect(() => {
-    // Select a random topic from the list when the component loads
     const randomTopic = topics[Math.floor(Math.random() * topics.length)];
     setPlaceholderTopic(randomTopic);
   }, []);
@@ -32,10 +31,10 @@ const CreateRoom = () => {
     e.preventDefault();
     if (formData.topic && formData.stanceValue !== 0) {
       const stance = {
-        party: formData.stanceValue < 0 ? 'Democrat' : 'Republican',
-        percentage: Math.abs(formData.stanceValue)
+        party: formData.stanceValue < 0 ? "Democrat" : "Republican",
+        percentage: Math.abs(formData.stanceValue),
       };
-      console.log('Room created:', { topic: formData.topic, stance });
+      console.log("Room created:", { topic: formData.topic, stance });
     } else {
       setShowError(true);
     }
@@ -43,23 +42,22 @@ const CreateRoom = () => {
 
   const handleStanceChange = (e) => {
     let value = parseInt(e.target.value);
-    // Skip 0 to prevent neutral stance
     if (value === 0) {
       value = e.target.value > formData.stanceValue ? 1 : -1;
     }
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      stanceValue: value
+      stanceValue: value,
     }));
   };
 
   const handleTopicChange = (e) => {
-    setFormData(prev => ({ ...prev, topic: e.target.value }));
+    setFormData((prev) => ({ ...prev, topic: e.target.value }));
     if (showError) setShowError(false);
   };
 
   const getStanceText = () => {
-    if (formData.stanceValue === 0) return 'Select a stance';
+    if (formData.stanceValue === 0) return "Select a stance";
     if (formData.stanceValue < 0) {
       return `${Math.abs(formData.stanceValue)}% Democrat`;
     } else {
@@ -68,14 +66,14 @@ const CreateRoom = () => {
   };
 
   const getStanceColor = () => {
-    if (formData.stanceValue === 0) return 'text-gray-400';
-    return formData.stanceValue < 0 ? 'text-blue-400' : 'text-red-400';
+    if (formData.stanceValue === 0) return "text-gray-400"; // Neutral
+    if (Math.abs(formData.stanceValue) < 25) return "text-purple-400"; // Below 25%, purple
+    return formData.stanceValue < 0 ? "text-blue-400" : "text-red-400"; // Default
   };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
       <div className="max-w-2xl mx-auto p-6">
-        {/* Header */}
         <div className="flex items-center justify-between mb-12">
           <div className="flex items-center space-x-2">
             <a href="/" className="flex items-center space-x-2">
@@ -85,7 +83,7 @@ const CreateRoom = () => {
               </h1>
             </a>
           </div>
-          <a 
+          <a
             href="/"
             className="flex items-center space-x-2 text-gray-400 hover:text-gray-300 transition-colors"
           >
@@ -94,9 +92,10 @@ const CreateRoom = () => {
           </a>
         </div>
 
-        {/* Form Container */}
         <div className="bg-gray-800/50 backdrop-blur-sm rounded-lg border border-gray-700 p-6">
-          <h2 className="text-xl font-semibold text-gray-100 mb-6">Create a New Topic Room</h2>
+          <h2 className="text-xl font-semibold text-gray-100 mb-6">
+            Create a New Topic Room
+          </h2>
 
           <form onSubmit={handleSubmit} className="space-y-8">
             <div>
@@ -107,10 +106,12 @@ const CreateRoom = () => {
                 value={formData.topic}
                 onChange={handleTopicChange}
                 className="w-full bg-gray-900/50 border border-gray-700 rounded-lg py-2 px-4 text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all"
-                placeholder={`e.g., ${placeholderTopic}`} // Use the random placeholder
+                placeholder={`e.g., ${placeholderTopic}`}
               />
               {showError && formData.topic.length === 0 && (
-                <p className="text-red-400 text-sm mt-1">* Please enter a topic</p>
+                <p className="text-red-400 text-sm mt-1">
+                  * Please enter a topic
+                </p>
               )}
             </div>
 
@@ -135,11 +136,11 @@ const CreateRoom = () => {
             </div>
 
             <button
-  type="submit"
-  className="w-full flex items-center justify-center px-6 py-3 rounded-lg bg-gray-800/50 text-gray-300 border border-gray-700 hover:bg-gray-700/50 transition-colors"
->
-  <span>Create Room</span>
-</button>
+              type="submit"
+              className="w-full flex items-center justify-center px-6 py-3 rounded-lg bg-gray-800/50 text-gray-300 border border-gray-700 hover:bg-gray-700/50 transition-colors"
+            >
+              <span>Create Room</span>
+            </button>
           </form>
         </div>
       </div>

@@ -8,8 +8,8 @@ const VoiceCallRoom = () => {
 
   const [gridData, setGridData] = useState(
     Array(GRID_WIDTH * GRID_HEIGHT).fill().map(() => ({
-      active: false,
-      color: getRandomColor()
+      active: Math.random() < 0.5, // 50% chance of starting as active
+      color: getRandomColor(), // Random initial color
     }))
   );
 
@@ -82,9 +82,6 @@ const VoiceCallRoom = () => {
           <div className="flex justify-between mt-2">
             <span className="px-3 py-1 rounded-full text-sm font-medium bg-blue-500/20 text-blue-300 border border-blue-500/30">
               75% Democrat
-            </span>
-            <span className="px-3 py-1 rounded-full text-sm font-medium bg-red-500/20 text-red-300 border border-red-500/30">
-              85% Republican
             </span>
           </div>
         </div>
