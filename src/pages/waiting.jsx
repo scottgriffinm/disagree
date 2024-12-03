@@ -3,14 +3,49 @@ import { Globe, ArrowLeft } from 'lucide-react';
 
 const VoiceCallWaiting = () => {
   const [dots, setDots] = useState(Array(8).fill(false));
-  const [elapsedTime, setElapsedTime] = useState(0);
+  const [messageIndex, setMessageIndex] = useState(0);
+  const [fade, setFade] = useState(true);
+  const [quoteCount, setQuoteCount] = useState(0);
 
-  // Dots animation
+  const messages = [
+    "Waiting for a partner to join...",
+    "\"I disapprove of what you say, but I will defend to the death your right to say it.\"",
+    "\"If everyone is thinking alike, then somebody isn't thinking.\"",
+    "\"Honest disagreement is often a good sign of progress.\"",
+    "\"People generally quarrel because they cannot argue.\"",
+    "\"If we agree about everything, one of us is unnecessary.\"",
+    "\"The aim of argument should not be victory, but progress.\"",
+    "\"Don't make people agree with you. Make them think.\"",
+    "\"The highest result of education is tolerance.\"",
+    "\"Truth springs from argument amongst friends.\"",
+    "\"Whenever you find yourself on the side of the majority, it is time to pause and reflect.\"",
+    "\"We may have all come on different ships, but we're in the same boat now.\"",
+    "\"Don't raise your voice, improve your argument.\"",
+    "\"Difference of opinion is helpful in religion.\"",
+    "\"Strong minds discuss ideas, weak minds discuss people.\"",
+    "\"I respect those who resist me; I curse those who submit to me.\"",
+    "\"The enemy is not the person who is wrong, but wrongness itself.\"",
+    "\"If liberty means anything at all, it means the right to tell people what they do not want to hear.\"",
+    "\"Those who cannot change their minds cannot change anything.\"",
+    "\"To avoid criticism, say nothing, do nothing, be nothing.\"",
+    "\"I never learned anything from a man who agreed with me.\"",
+    "\"The measure of intelligence is the ability to change.\"",
+    "\"You can disagree without being disagreeable.\"",
+    "\"A wise man changes his mind, a fool never will.\"",
+    "\"The best way to solve problems and to fight against war is through dialogue.\"",
+    "\"Everything we hear is an opinion, not a fact. Everything we see is a perspective, not the truth.\"",
+    "\"The eye sees only what the mind is prepared to comprehend.\"",
+    "\"We don't see things as they are, we see them as we are.\"",
+    "\"It is never too late to give up your prejudices.\"",
+    "\"The more I see, the less I know for sure.\""
+  ];
+
+  // Animate the dots
   useEffect(() => {
     const interval = setInterval(() => {
-      setDots(prev => {
+      setDots((prev) => {
         const newDots = [...prev];
-        const firstActive = newDots.findIndex(dot => dot);
+        const firstActive = newDots.findIndex((dot) => dot);
         if (firstActive === -1) {
           newDots[0] = true;
           return newDots;
@@ -27,24 +62,27 @@ const VoiceCallWaiting = () => {
     return () => clearInterval(interval);
   }, []);
 
-  // Timer
+  // Timer to cycle messages
   useEffect(() => {
     const interval = setInterval(() => {
-      setElapsedTime(prev => prev + 1);
-    }, 1000);
+      setFade(false);
+      setTimeout(() => {
+        setMessageIndex((prevIndex) => {
+          if (quoteCount === 2) {
+            // Reset to "Waiting for a partner to join..." after three quotes
+            setQuoteCount(0);
+            return 0; // Reset to the "Waiting for a partner to join..." message
+          } else {
+            setQuoteCount(quoteCount + 1);
+            return prevIndex + 1 === messages.length ? 1 : prevIndex + 1; // Cycle to next quote
+          }
+        });
+        setFade(true);
+      }, 500); // Matches CSS transition duration
+    }, 3000);
 
     return () => clearInterval(interval);
-  }, []);
-
-  // Format elapsed time
-  const formatTime = (seconds) => {
-    if (seconds < 60) {
-      return `${seconds}s`;
-    }
-    const minutes = Math.floor(seconds / 60);
-    const remainingSeconds = seconds % 60;
-    return `${minutes}m ${remainingSeconds}s`;
-  };
+  }, [quoteCount]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
@@ -94,9 +132,13 @@ const VoiceCallWaiting = () => {
                 />
               ))}
             </div>
-            <div className="flex flex-col items-center gap-2">
-              <div className="text-lg text-gray-300">Waiting for a partner to join...</div>
-             
+            {/* Message */}
+            <div
+              className={`text-lg text-gray-300 transition-opacity duration-500 ${
+                fade ? 'opacity-100' : 'opacity-0'
+              }`}
+            >
+              {messages[messageIndex]}
             </div>
           </div>
         </div>
