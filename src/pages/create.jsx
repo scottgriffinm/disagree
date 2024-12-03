@@ -6,10 +6,9 @@ const CreateRoom = () => {
     topic: "",
     stanceValue: 1, // -100 to -1 is Democrat, 1 to 100 is Republican
   });
-
   const [showError, setShowError] = useState(false);
   const [placeholderTopic, setPlaceholderTopic] = useState("");
-
+  
   const topics = [
     "Censorship online",
     "AR-15s should be legal",
@@ -27,14 +26,39 @@ const CreateRoom = () => {
     setPlaceholderTopic(randomTopic);
   }, []);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+
     if (formData.topic && formData.stanceValue !== 0) {
       const stance = {
         party: formData.stanceValue < 0 ? "Democrat" : "Republican",
         percentage: Math.abs(formData.stanceValue),
       };
-      console.log("Room created:", { topic: formData.topic, stance });
+
+      const newRoom = {
+        name: formData.topic,
+        stance,
+      };
+
+      try {
+        const response = await fetch("/api/rooms", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(newRoom),
+        });
+
+        if (!response.ok) {
+          throw new Error("Failed to create room");
+        }
+
+        const result = await response.json();
+        setFormData({ topic: "", stanceValue: 1 }); // Reset the form
+        setShowError(false);
+      } catch (error) {
+        console.error("Error creating room:", error);
+      }
     } else {
       setShowError(true);
     }
