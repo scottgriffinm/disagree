@@ -3,6 +3,7 @@ import { Switch, Route, Router } from "wouter";
 import Home from "../pages/home.jsx";
 import About from "../pages/about.jsx";
 import Create from "../pages/create.jsx";
+import Waiting from "../pages/waiting.jsx";
 
 /**
 * The router is imported in app.jsx
@@ -17,5 +18,6 @@ export default () => (
       <Route path="/" component={Home} />
       <Route path="/about" component={About} />
       <Route path="/create" component={Create} />
+      <Route path="/waiting" component={Waiting} />
     </Switch>
 );

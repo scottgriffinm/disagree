@@ -4,7 +4,7 @@ import { Globe, ArrowLeft } from 'lucide-react';
 const CreateRoom = () => {
   const [formData, setFormData] = useState({
     topic: '',
-    stanceValue: -50 // -100 to -1 is Democrat, 1 to 100 is Republican
+    stanceValue: 1 // -100 to -1 is Democrat, 1 to 100 is Republican
   });
   
   const [showError, setShowError] = useState(false);
@@ -100,7 +100,7 @@ const CreateRoom = () => {
 
           <form onSubmit={handleSubmit} className="space-y-8">
             <div>
-              <label className="block text-gray-300 mb-2">Topic Title</label>
+              <label className="block text-gray-300 mb-2">Topic</label>
               <input
                 type="text"
                 name="topic"
@@ -110,7 +110,7 @@ const CreateRoom = () => {
                 placeholder={`e.g., ${placeholderTopic}`} // Use the random placeholder
               />
               {showError && formData.topic.length === 0 && (
-                <p className="text-red-400 text-sm mt-1">* Please enter a topic title</p>
+                <p className="text-red-400 text-sm mt-1">* Please enter a topic</p>
               )}
             </div>
 
