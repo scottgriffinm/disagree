@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Globe, ArrowLeft } from 'lucide-react';
 
 const CreateRoom = () => {
@@ -8,6 +8,25 @@ const CreateRoom = () => {
   });
   
   const [showError, setShowError] = useState(false);
+  const [placeholderTopic, setPlaceholderTopic] = useState('');
+
+  const topics = [
+    "Censorship online",
+    "AR-15s should be legal",
+    "Transgender women in sports",
+    "Weed should be legal",
+    "War in Ukraine",
+    "Age limit in politics",
+    "Illegal immigration",
+    "Polygamy is harmful to society",
+    "War in Palestine"
+  ];
+
+  useEffect(() => {
+    // Select a random topic from the list when the component loads
+    const randomTopic = topics[Math.floor(Math.random() * topics.length)];
+    setPlaceholderTopic(randomTopic);
+  }, []);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -88,7 +107,7 @@ const CreateRoom = () => {
                 value={formData.topic}
                 onChange={handleTopicChange}
                 className="w-full bg-gray-900/50 border border-gray-700 rounded-lg py-2 px-4 text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all"
-                placeholder="e.g., Free speech online"
+                placeholder={`e.g., ${placeholderTopic}`} // Use the random placeholder
               />
               {showError && formData.topic.length === 0 && (
                 <p className="text-red-400 text-sm mt-1">* Please enter a topic title</p>
