@@ -3,9 +3,8 @@ import { Globe, ArrowLeft } from 'lucide-react';
 
 const VoiceCallWaiting = () => {
   const [dots, setDots] = useState(Array(8).fill(false));
-  const [messageIndex, setMessageIndex] = useState(0);
+  const [currentMessage, setCurrentMessage] = useState("Waiting for a partner to join...");
   const [fade, setFade] = useState(true);
-  const [quoteCount, setQuoteCount] = useState(0);
 
   const messages = [
     "Waiting for a partner to join...",
@@ -65,24 +64,16 @@ const VoiceCallWaiting = () => {
   // Timer to cycle messages
   useEffect(() => {
     const interval = setInterval(() => {
-      setFade(false);
+      setFade(false); // Start fade out
       setTimeout(() => {
-        setMessageIndex((prevIndex) => {
-          if (quoteCount === 2) {
-            // Reset to "Waiting for a partner to join..." after three quotes
-            setQuoteCount(0);
-            return 0; // Reset to the "Waiting for a partner to join..." message
-          } else {
-            setQuoteCount(quoteCount + 1);
-            return prevIndex + 1 === messages.length ? 1 : prevIndex + 1; // Cycle to next quote
-          }
-        });
-        setFade(true);
-      }, 500); // Matches CSS transition duration
-    }, 3000);
+        const randomIndex = Math.floor(Math.random() * messages.length);
+        setCurrentMessage(messages[randomIndex]);
+        setFade(true); // Start fade in
+      }, 3000); // Fade out duration (3 seconds)
+    }, 10000); // 10-second interval
 
     return () => clearInterval(interval);
-  }, [quoteCount]);
+  }, []);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
@@ -117,8 +108,8 @@ const VoiceCallWaiting = () => {
         </div>
 
         {/* Custom Loading Animation */}
-        <div className="bg-gray-800/50 backdrop-blur-sm rounded-lg border border-gray-700 p-8">
-          <div className="h-48 bg-gray-900/50 rounded-lg flex flex-col items-center justify-center gap-8">
+        <div className="bg-gray-800/50 backdrop-blur-sm rounded-lg border border-gray-700 p-6">
+          <div className="h-60 bg-gray-900/50 rounded-lg flex flex-col items-center justify-center gap-6">
             {/* Animated Dots */}
             <div className="flex gap-4">
               {dots.map((active, index) => (
@@ -134,11 +125,12 @@ const VoiceCallWaiting = () => {
             </div>
             {/* Message */}
             <div
-              className={`text-lg text-gray-300 transition-opacity duration-500 ${
+              className={`text-lg text-gray-300 transition-opacity duration-3000 w-3/4 text-center ${
                 fade ? 'opacity-100' : 'opacity-0'
               }`}
+              style={{ height: "4rem" }} // Fixed height for consistent layout
             >
-              {messages[messageIndex]}
+              {currentMessage}
             </div>
           </div>
         </div>
