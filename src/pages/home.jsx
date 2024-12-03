@@ -189,12 +189,11 @@ const DisagreePlatform = () => {
               </h1>
             </a>
           </div>
-          <button className="group bg-gradient-to-r from-blue-500 to-purple-500 px-4 py-2 rounded-lg transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/20 flex items-center space-x-2">
+          <button className="group bg-gradient-to-r from-blue-500 to-purple-500 px-4 py-2 rounded-lg transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/20 flex items-center space-x-2 text-white">
             <Plus
               size={20}
               className="transform group-hover:rotate-90 transition-transform duration-300"
             />
-            <span>New Room</span>
           </button>
         </div>
 
