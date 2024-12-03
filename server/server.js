@@ -64,7 +64,6 @@ app.post('/api/rooms', (req, res) => {
 
   rooms.push(newRoom);
   debatesToday += 1; // Increment debates today
-  io.emit('stats-update', { usersOnline: activeConnections, activeDebates: rooms.length, debatesToday }); // Notify stats update
   res.status(201).json(newRoom);
 });
 

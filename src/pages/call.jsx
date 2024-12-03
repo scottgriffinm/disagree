@@ -71,7 +71,7 @@ const VoiceCallRoom = () => {
               className="flex items-center space-x-2 px-4 py-2 rounded-lg bg-gray-800/50 text-gray-300 border border-gray-700 hover:bg-gray-700/50 transition-colors"
             >
               <UserX size={20} />
-              <span>Find New Partner</span>
+              <span>New Partner</span>
             </button>
           </div>
         </div>
