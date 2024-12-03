@@ -12,8 +12,7 @@ const DisagreePlatform = () => {
   const [filters, setFilters] = useState({
     republican: false,
     democrat: false,
-    open: false,
-    centrist: false, // New Centrist filter
+    centrist: false,
   });
   const [currentPage, setCurrentPage] = useState(1);
   const roomsPerPage = 5;
@@ -294,20 +293,6 @@ const DisagreePlatform = () => {
               }}
             >
               Centrist
-            </button>
-            <button
-              className={`px-4 py-2 rounded-full text-sm font-medium ${
-                filters.open
-                  ? "bg-green-500/20 text-green-300 border border-green-500/30"
-                  : "bg-gray-500/20 text-gray-400 border border-gray-500/30"
-              }`}
-              onClick={() => {
-                const newFilters = { ...filters, open: !filters.open };
-                setFilters(newFilters);
-                applyFilters(searchTerm, newFilters);
-              }}
-            >
-              Open
             </button>
           </div>
         </div>
