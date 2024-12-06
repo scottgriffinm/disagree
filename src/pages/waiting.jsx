@@ -106,7 +106,7 @@ const VoiceCallWaiting = () => {
           </h2>
           <div className="flex justify-between mt-2">
             <span className="px-3 py-1 rounded-full text-sm font-medium bg-blue-500/20 text-blue-300 border border-blue-500/30">
-              75% Democrat
+              75% Left
             </span>
           </div>
         </div>

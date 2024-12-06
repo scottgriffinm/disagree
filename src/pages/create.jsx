@@ -4,7 +4,7 @@ import { Globe, ArrowLeft } from "lucide-react";
 const CreateRoom = () => {
   const [formData, setFormData] = useState({
     topic: "",
-    stanceValue: 1, // -100 to -1 is Democrat, 1 to 100 is Republican
+    stanceValue: 1, // -100 to -1 is Left, 1 to 100 is Right
   });
   const [showError, setShowError] = useState(false);
   const [placeholderTopic, setPlaceholderTopic] = useState("");
@@ -31,7 +31,7 @@ const CreateRoom = () => {
 
     if (formData.topic && formData.stanceValue !== 0) {
       const stance = {
-        party: formData.stanceValue < 0 ? "Democrat" : "Republican",
+        party: formData.stanceValue < 0 ? "Left" : "Right",
         percentage: Math.abs(formData.stanceValue),
       };
 
@@ -83,9 +83,9 @@ const CreateRoom = () => {
   const getStanceText = () => {
     if (formData.stanceValue === 0) return "Select a stance";
     if (formData.stanceValue < 0) {
-      return `${Math.abs(formData.stanceValue)}% Democrat`;
+      return `${Math.abs(formData.stanceValue)}% Left`;
     } else {
-      return `${formData.stanceValue}% Republican`;
+      return `${formData.stanceValue}% Right`;
     }
   };
 

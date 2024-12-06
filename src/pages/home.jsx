@@ -16,8 +16,8 @@ const DisagreePlatform = () => {
     direction: "asc",
   });
   const [filters, setFilters] = useState({
-    republican: false,
-    democrat: false,
+    right: false,
+    left: false,
     open: false,
     centrist: false, // New Centrist filter
   });
@@ -88,11 +88,11 @@ const DisagreePlatform = () => {
 
       if (key === "stance") {
         const aScore =
-          a.stance.party === "Democrat"
+          a.stance.party === "Left"
             ? -a.stance.percentage
             : a.stance.percentage;
         const bScore =
-          b.stance.party === "Democrat"
+          b.stance.party === "Left"
             ? -b.stance.percentage
             : b.stance.percentage;
         return direction === "asc" ? aScore - bScore : bScore - aScore;
@@ -126,17 +126,17 @@ const DisagreePlatform = () => {
         let matchesFilter = true;
 
         // Apply specific party filters
-        if (filters.republican) {
+        if (filters.right) {
           matchesFilter =
-            room.stance.party === "Republican" && room.stance.percentage > 25;
-        } else if (filters.democrat) {
+            room.stance.party === "Right" && room.stance.percentage > 25;
+        } else if (filters.left) {
           matchesFilter =
-            room.stance.party === "Democrat" && room.stance.percentage > 25;
+            room.stance.party === "Left" && room.stance.percentage > 25;
         } else if (filters.centrist) {
           matchesFilter =
-            (room.stance.party === "Democrat" &&
+            (room.stance.party === "Left" &&
               room.stance.percentage <= 25) ||
-            (room.stance.party === "Republican" &&
+            (room.stance.party === "Right" &&
               room.stance.percentage <= 25);
         }
 
@@ -265,41 +265,41 @@ const DisagreePlatform = () => {
             <div className="flex space-x-4">
               <button
                 className={`px-4 py-2 rounded-full text-sm font-medium ${
-                  filters.republican
+                  filters.right
                     ? "bg-red-500/20 text-red-300 border border-red-500/30"
                     : "bg-gray-500/20 text-gray-400 border border-gray-500/30"
                 }`}
                 onClick={() => {
                   const newFilters = {
                     ...filters,
-                    republican: !filters.republican,
-                    democrat: false,
+                    right: !filters.right,
+                    left: false,
                     centrist: false,
                   };
                   setFilters(newFilters);
                   applyFilters(searchTerm, newFilters);
                 }}
               >
-                Republican
+                Right
               </button>
               <button
                 className={`px-4 py-2 rounded-full text-sm font-medium ${
-                  filters.democrat
+                  filters.left
                     ? "bg-blue-500/20 text-blue-300 border border-blue-500/30"
                     : "bg-gray-500/20 text-gray-400 border border-gray-500/30"
                 }`}
                 onClick={() => {
                   const newFilters = {
                     ...filters,
-                    democrat: !filters.democrat,
-                    republican: false,
+                    left: !filters.left,
+                    right: false,
                     centrist: false,
                   };
                   setFilters(newFilters);
                   applyFilters(searchTerm, newFilters);
                 }}
               >
-                Democrat
+                Left
               </button>
               <button
                 className={`px-4 py-2 rounded-full text-sm font-medium ${
@@ -311,8 +311,8 @@ const DisagreePlatform = () => {
                   const newFilters = {
                     ...filters,
                     centrist: !filters.centrist,
-                    republican: false,
-                    democrat: false,
+                    right: false,
+                    left: false,
                   };
                   setFilters(newFilters);
                   applyFilters(searchTerm, newFilters);
@@ -401,7 +401,7 @@ const DisagreePlatform = () => {
                               ? "bg-gray-400"
                               : room.stance.percentage <= 25
                               ? "bg-purple-400"
-                              : room.stance.party === "Republican"
+                              : room.stance.party === "Right"
                               ? "bg-red-400"
                               : "bg-blue-400"
                           }`}
@@ -423,7 +423,7 @@ const DisagreePlatform = () => {
                         className={`px-3 py-1 rounded-full text-xs font-medium w-32 inline-block text-center ${
                           room.stance.percentage <= 25
                             ? "bg-purple-500/20 text-purple-300 border border-purple-500/30"
-                            : room.stance.party === "Democrat"
+                            : room.stance.party === "Left"
                             ? "bg-blue-500/20 text-blue-300 border border-blue-500/30"
                             : "bg-red-500/20 text-red-300 border border-red-500/30"
                         }`}
