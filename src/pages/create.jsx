@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Globe, ArrowLeft } from "lucide-react";
+import { useNavigate } from "wouter"; // Import useNavigate
 
 const CreateRoom = () => {
   const [formData, setFormData] = useState({
@@ -8,6 +9,8 @@ const CreateRoom = () => {
   });
   const [showError, setShowError] = useState(false);
   const [placeholderTopic, setPlaceholderTopic] = useState("");
+  
+  const navigate = useNavigate(); // Initialize the navigate function
   
   const topics = [
     "Censorship online",
@@ -56,6 +59,10 @@ const CreateRoom = () => {
         const result = await response.json();
         setFormData({ topic: "", stanceValue: 1 }); // Reset the form
         setShowError(false);
+
+        // Redirect to the waiting page with room info
+        navigate(`/waiting`, { state: { room: result } });
+
       } catch (error) {
         console.error("Error creating room:", error);
       }

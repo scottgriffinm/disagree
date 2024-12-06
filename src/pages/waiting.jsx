@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Globe, ArrowLeft } from "lucide-react";
+import { useLocation } from "wouter";
 
 const VoiceCallWaiting = () => {
   const [dots, setDots] = useState(Array(8).fill(false));
@@ -8,7 +9,11 @@ const VoiceCallWaiting = () => {
   );
   const [fade, setFade] = useState(true);
 
-  const messages = [
+  // Retrieve the room information from the router state
+  const [location] = useLocation();
+  const room = location.state?.room; // Access the passed room info
+
+   const messages = [
     "Waiting for a partner to join...",
     '"I disapprove of what you say, but I will defend to the death your right to say it."',
     '"If everyone is thinking alike, then somebody isn\'t thinking."',
@@ -102,12 +107,24 @@ const VoiceCallWaiting = () => {
         {/* Topic Card */}
         <div className="bg-gray-800/50 backdrop-blur-sm rounded-lg border border-gray-700 p-6 mb-8">
           <h2 className="text-xl font-semibold text-gray-100">
-            Should pineapple be on pizza?
+            {room ? room.name : "Topic not available"}
           </h2>
           <div className="flex justify-between mt-2">
-            <span className="px-3 py-1 rounded-full text-sm font-medium bg-blue-500/20 text-blue-300 border border-blue-500/30">
-              75% Left
-            </span>
+            {room && room.stance ? (
+              <span
+                className={`px-3 py-1 rounded-full text-sm font-medium ${
+                  room.stance.percentage <= 25
+                    ? "bg-purple-500/20 text-purple-300 border border-purple-500/30"
+                    : room.stance.party === "Left"
+                    ? "bg-blue-500/20 text-blue-300 border border-blue-500/30"
+                    : "bg-red-500/20 text-red-300 border border-red-500/30"
+                }`}
+              >
+                {room.stance.percentage}% {room.stance.party}
+              </span>
+            ) : (
+              <span className="text-gray-400">Stance not available</span>
+            )}
           </div>
         </div>
 
