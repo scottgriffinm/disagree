@@ -17,7 +17,7 @@ let rooms = [];
 //   id: index + 1,
 //   name: `Topic Room ${index + 1}`,
 //   stance: {
-//     party: index % 2 === 0 ? "Democrat" : "Republican",
+//     party: index % 2 === 0 ? "Left" : "Right",
 //     percentage: Math.floor(Math.random() * 100) + 1,
 //   },
 //   participants: Math.max(Math.floor(Math.random() * 3), 1),
