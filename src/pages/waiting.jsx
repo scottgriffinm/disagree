@@ -1,16 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { Globe, ArrowLeft } from "lucide-react";
-import { useLocation } from "wouter";
 
 const VoiceCallWaiting = () => {
-  const [location, state] = useLocation(); // Destructure location and state
-  const { topic, stance } = state || {}; // Fallback to empty object if no state
   const [dots, setDots] = useState(Array(8).fill(false));
   const [currentMessage, setCurrentMessage] = useState(
     "Waiting for a partner to join..."
   );
   const [fade, setFade] = useState(true);
-  
 
   const messages = [
     "Waiting for a partner to join...",
@@ -104,16 +100,16 @@ const VoiceCallWaiting = () => {
         </div>
 
         {/* Topic Card */}
-        {topic && stance && (
-          <div className="bg-gray-800/50 backdrop-blur-sm rounded-lg border border-gray-700 p-6 mb-8">
-            <h2 className="text-xl font-semibold text-gray-100">{topic}</h2>
-            <div className="flex justify-between mt-2">
-              <span className="px-3 py-1 rounded-full text-sm font-medium bg-blue-500/20 text-blue-300 border border-blue-500/30">
-                {stance.percentage}% {stance.party}
-              </span>
-            </div>
+        <div className="bg-gray-800/50 backdrop-blur-sm rounded-lg border border-gray-700 p-6 mb-8">
+          <h2 className="text-xl font-semibold text-gray-100">
+            Should pineapple be on pizza?
+          </h2>
+          <div className="flex justify-between mt-2">
+            <span className="px-3 py-1 rounded-full text-sm font-medium bg-blue-500/20 text-blue-300 border border-blue-500/30">
+              75% Democrat
+            </span>
           </div>
-        )}
+        </div>
 
         {/* Custom Loading Animation */}
         <div className="bg-gray-800/50 backdrop-blur-sm rounded-lg border border-gray-700 p-8">
