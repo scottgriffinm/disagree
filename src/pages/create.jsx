@@ -1,16 +1,14 @@
 import React, { useState, useEffect } from "react";
 import { Globe, ArrowLeft } from "lucide-react";
-import { useNavigate } from "wouter"; // Import useNavigate
+import { useLocation } from "wouter"; // Import useLocation for navigation
 
 const CreateRoom = () => {
   const [formData, setFormData] = useState({
     topic: "",
-    stanceValue: 1, // -100 to -1 is Left, 1 to 100 is Right
+    stanceValue: 1,
   });
   const [showError, setShowError] = useState(false);
   const [placeholderTopic, setPlaceholderTopic] = useState("");
-  
-  const navigate = useNavigate(); // Initialize the navigate function
   
   const topics = [
     "Censorship online",
@@ -28,6 +26,8 @@ const CreateRoom = () => {
     const randomTopic = topics[Math.floor(Math.random() * topics.length)];
     setPlaceholderTopic(randomTopic);
   }, []);
+
+  const [location, setLocation] = useLocation(); // Hook to change route
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -57,12 +57,9 @@ const CreateRoom = () => {
         }
 
         const result = await response.json();
-        setFormData({ topic: "", stanceValue: 1 }); // Reset the form
-        setShowError(false);
 
-        // Redirect to the waiting page with room info
-        navigate(`/waiting`, { state: { room: result } });
-
+        // Redirect the user to the waiting page, passing the topic and stance in the query
+        setLocation(`/waiting?topic=${encodeURIComponent(result.name)}&party=${encodeURIComponent(result.stance.party)}&percentage=${result.stance.percentage}`);
       } catch (error) {
         console.error("Error creating room:", error);
       }
@@ -97,9 +94,9 @@ const CreateRoom = () => {
   };
 
   const getStanceColor = () => {
-    if (formData.stanceValue === 0) return "text-gray-400"; // Neutral
-    if (Math.abs(formData.stanceValue) < 25) return "text-purple-400"; // Below 25%, purple
-    return formData.stanceValue < 0 ? "text-blue-400" : "text-red-400"; // Default
+    if (formData.stanceValue === 0) return "text-gray-400"; 
+    if (Math.abs(formData.stanceValue) < 25) return "text-purple-400"; 
+    return formData.stanceValue < 0 ? "text-blue-400" : "text-red-400"; 
   };
 
   return (
