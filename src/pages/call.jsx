@@ -1,28 +1,29 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Globe, ArrowLeft, UserX } from "lucide-react";
 import { useSocket } from "../app.jsx";
 import { useLocation } from "wouter";
 
 const VoiceCallRoom = () => {
-  // Extract query params from URL
   const socket = useSocket();
   const [location, setLocation] = useLocation();
-
   const searchParams = new URLSearchParams(window.location.search);
   const topic = searchParams.get("topic") || "Waiting for a topic...";
   const party = searchParams.get("party");
   const percentage = searchParams.get("percentage");
   const isOwner = searchParams.get("owner") === "true";
 
-  // Determine grid width based on initial screen size
+  const localStreamRef = useRef(null);
+  const peersRef = useRef({});
   const [gridWidth, setGridWidth] = useState(() => (window.innerWidth < 500 ? 8 : 12));
   const gridHeight = 4;
 
-  function getRandomColor() {
+  // Utility function to get random colors
+  const getRandomColor = () => {
     const colors = ["blue", "red", "purple"];
     return colors[Math.floor(Math.random() * colors.length)];
-  }
+  };
 
+  // Grid animation state
   const [gridData, setGridData] = useState(
     Array(gridWidth * gridHeight)
       .fill()
@@ -45,7 +46,7 @@ const VoiceCallRoom = () => {
     return () => window.removeEventListener("resize", handleResize);
   }, [gridWidth]);
 
-  // Reset grid data whenever gridWidth changes
+  // Update grid on width change
   useEffect(() => {
     setGridData(
       Array(gridWidth * gridHeight)
@@ -57,6 +58,7 @@ const VoiceCallRoom = () => {
     );
   }, [gridWidth, gridHeight]);
 
+  // Animate the grid
   useEffect(() => {
     const interval = setInterval(() => {
       setGridData((prev) =>
@@ -75,39 +77,97 @@ const VoiceCallRoom = () => {
     return () => clearInterval(interval);
   }, []);
 
-  // Listen for redirect events
+  // WebRTC setup
+  const createPeerConnection = (userId) => {
+    const peerConnection = new RTCPeerConnection();
+    localStreamRef.current.getTracks().forEach((track) =>
+      peerConnection.addTrack(track, localStreamRef.current)
+    );
+
+    peerConnection.onicecandidate = (event) => {
+      if (event.candidate) {
+        socket.emit("signal", {
+          target: userId,
+          description: event.candidate,
+        });
+      }
+    };
+
+    peerConnection.ontrack = (event) => {
+      const audio = document.createElement("audio");
+      audio.srcObject = event.streams[0];
+      audio.autoplay = true;
+      document.body.appendChild(audio);
+    };
+
+    return peerConnection;
+  };
+
   useEffect(() => {
-    if (!socket) return;
-
-    const handleRedirectHome = () => {
-      // Send non-owner back to home page
-      setLocation("/");
+    // Request microphone access
+    const setupStream = async () => {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        localStreamRef.current = stream;
+        const audioElement = document.createElement("audio");
+        audioElement.srcObject = stream;
+        audioElement.autoplay = true;
+        document.body.appendChild(audioElement);
+      } catch (err) {
+        console.error("Error accessing microphone:", err);
+        alert("Microphone access is required to join the call.");
+        setLocation("/");
+      }
     };
 
-    const handleRedirectWaiting = ({ room }) => {
-      // Send owner back to waiting with room info
-      setLocation(
-        `/waiting?topic=${encodeURIComponent(room.name)}&party=${encodeURIComponent(
-          room.stance.party
-        )}&percentage=${room.stance.percentage}`
-      );
-    };
+    setupStream();
 
-    socket.on("redirect-home", handleRedirectHome);
-    socket.on("redirect-waiting", handleRedirectWaiting);
+    // Handle WebRTC signaling
+    socket.on("signal", async ({ sender, description }) => {
+      let peerConnection = peersRef.current[sender];
+      if (!peerConnection) {
+        peerConnection = createPeerConnection(sender);
+        peersRef.current[sender] = peerConnection;
+      }
+
+      if (description.type === "offer") {
+        await peerConnection.setRemoteDescription(description);
+        const answer = await peerConnection.createAnswer();
+        await peerConnection.setLocalDescription(answer);
+        socket.emit("signal", {
+          target: sender,
+          description: peerConnection.localDescription,
+        });
+      } else if (description.type === "answer") {
+        await peerConnection.setRemoteDescription(description);
+      } else if (description.candidate) {
+        await peerConnection.addIceCandidate(description);
+      }
+    });
+
+    // Handle cleanup when users leave
+    socket.on("user-left", (userId) => {
+      if (peersRef.current[userId]) {
+        peersRef.current[userId].close();
+        delete peersRef.current[userId];
+      }
+    });
 
     return () => {
-      socket.off("redirect-home", handleRedirectHome);
-      socket.off("redirect-waiting", handleRedirectWaiting);
+      // Cleanup on component unmount
+      socket.off("signal");
+      socket.off("user-left");
+      Object.values(peersRef.current).forEach((peer) => peer.close());
+      peersRef.current = {};
+      if (localStreamRef.current) {
+        localStreamRef.current.getTracks().forEach((track) => track.stop());
+      }
     };
   }, [socket, setLocation]);
 
   const handleNewPartner = () => {
-    if (!socket) return;
-
     socket.emit("new-partner", (response) => {
       if (response.success) {
-        // Owner gets redirected to the waiting page with room info
         setLocation(
           `/waiting?topic=${encodeURIComponent(topic)}&party=${encodeURIComponent(
             party
@@ -136,7 +196,6 @@ const VoiceCallRoom = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
       <div className="max-w-4xl mx-auto p-6">
-        {/* Header */}
         <div className="flex items-center justify-between mb-12">
           <div className="flex items-center space-x-2">
             <a href="/" className="flex items-center space-x-2">
@@ -166,7 +225,6 @@ const VoiceCallRoom = () => {
           </div>
         </div>
 
-        {/* Topic Card */}
         <div className="bg-gray-800/50 backdrop-blur-sm rounded-lg border border-gray-700 p-6 mb-8">
           <h2 className="text-xl font-semibold text-gray-100">{topic}</h2>
           {party && percentage && (
@@ -178,7 +236,6 @@ const VoiceCallRoom = () => {
           )}
         </div>
 
-        {/* Digital Random Grid Visualizer */}
         <div className="bg-gray-800/50 backdrop-blur-sm rounded-lg border border-gray-700 p-8">
           <div className="h-48 bg-gray-900/50 rounded-lg flex items-center justify-center">
             <div className={`grid ${gridWidth === 8 ? "grid-cols-8" : "grid-cols-12"} gap-2`}>
