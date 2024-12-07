@@ -77,6 +77,21 @@ const VoiceCallRoom = () => {
       socket.off("redirect-waiting", handleRedirectWaiting);
     };
   }, [socket, setLocation]);
+  
+  const handleNewPartner = () => {
+  if (!socket) return;
+
+  socket.emit('new-partner', (response) => {
+    if (response.success) {
+      // Owner gets redirected to the waiting page with room info
+      setLocation(
+        `/waiting?topic=${encodeURIComponent(topic)}&party=${encodeURIComponent(party)}&percentage=${percentage}`
+      );
+    } else {
+      console.error("Failed to handle new partner action.");
+    }
+  });
+};
 
   const getSquareColor = (color, active) => {
     if (!active) return "bg-gray-800/50";
@@ -114,7 +129,9 @@ const VoiceCallRoom = () => {
               <span>Back to Rooms</span>
             </a>
             {isOwner && (
-              <button className="flex items-center space-x-2 px-4 py-2 rounded-lg bg-gray-800/50 text-gray-300 border border-gray-700 hover:bg-gray-700/50 transition-colors">
+              <button 
+                className="flex items-center space-x-2 px-4 py-2 rounded-lg bg-gray-800/50 text-gray-300 border border-gray-700 hover:bg-gray-700/50 transition-colors"
+                onClick={handleNewPartner}>
                 <UserX size={20} />
                 <span>New Partner</span>
               </button>

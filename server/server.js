@@ -102,6 +102,38 @@ io.on('connection', (socket) => {
 
     if (callback) callback({ room });
   });
+  
+  
+  // Handle "new-partner" request
+socket.on('new-partner', (callback) => {
+  const userInfo = socketToRoom[socket.id];
+  if (!userInfo) return; // User is not in a room
+  
+  const { roomId, isOwner } = userInfo;
+  if (!isOwner) return; // Only owners can trigger this action
+
+  const room = rooms.find((r) => r.id === roomId);
+  if (!room) return; // Room not found
+
+  // Send the non-owner to the home page
+  const participants = Array.from(io.sockets.adapter.rooms.get(`room-${roomId}`) || []);
+  const nonOwnerSocketId = participants.find((id) => id !== socket.id);
+
+  if (nonOwnerSocketId) {
+    // Emit redirect event for the non-owner
+    io.to(nonOwnerSocketId).emit('redirect-home');
+    // Remove the non-owner from the room
+    io.sockets.sockets.get(nonOwnerSocketId)?.leave(`room-${roomId}`);
+    delete socketToRoom[nonOwnerSocketId];
+  }
+
+  // Update room participant count
+  room.participants = 1;
+
+  // Emit redirect event for the owner
+  if (callback) callback({ success: true });
+  socket.emit('redirect-waiting', { room });
+});
 
 
   // Handle disconnection
