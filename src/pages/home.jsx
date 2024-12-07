@@ -3,11 +3,11 @@ import { Search, ArrowUpDown, Plus, Globe } from "lucide-react";
 import { useSocket } from "../app.jsx"; // or the file where the context is defined
 import { Link } from "wouter"; // import Link from wouter for client-side navigation
 
-
 const DisagreePlatform = () => {
+  const socket = useSocket(); // Access the shared socket
   const [allRooms, setAllRooms] = useState([]);
   const [rooms, setRooms] = useState([]);
-    const [stats, setStats] = useState({
+  const [stats, setStats] = useState({
     usersOnline: 0,
     activeDebates: 0,
     debatesToday: 0,
@@ -52,14 +52,9 @@ const DisagreePlatform = () => {
     fetchRooms();
     fetchStats();
 
-    // Socket.IO connection
-    const socket = io();
-
     // Clean up socket connection on component unmount
-    return () => {
-      socket.disconnect();
-    };
-  }, []);
+    return () => {};
+  }, [socket]);
 
   const formatTimeAgo = (dateString) => {
     const date = new Date(dateString);
@@ -136,10 +131,8 @@ const DisagreePlatform = () => {
             room.stance.party === "Left" && room.stance.percentage > 25;
         } else if (filters.centrist) {
           matchesFilter =
-            (room.stance.party === "Left" &&
-              room.stance.percentage <= 25) ||
-            (room.stance.party === "Right" &&
-              room.stance.percentage <= 25);
+            (room.stance.party === "Left" && room.stance.percentage <= 25) ||
+            (room.stance.party === "Right" && room.stance.percentage <= 25);
         }
 
         // Apply the open filter if selected
@@ -218,26 +211,31 @@ const DisagreePlatform = () => {
               </h1>
             </a>
           </div>
-          <a
-            href="/create"
-            className="flex items-center space-x-2 px-4 py-2 rounded-lg bg-gray-800/50 text-gray-300 border border-gray-700 hover:bg-gray-700/50 transition-colors"
-          >
-            <Plus size={20} />
-          </a>
+          <Link to="/create">
+            <button className="flex items-center space-x-2 px-4 py-2 rounded-lg bg-gray-800/50 text-gray-300 border border-gray-700 hover:bg-gray-700/50 transition-colors">
+              <Plus size={20} />
+            </button>
+          </Link>
         </div>
 
-          {/* Stats */}
+        {/* Stats */}
         <div className="grid grid-cols-3 gap-4 mb-8">
           <div className="bg-gray-800/50 backdrop-blur-sm rounded-lg p-4 border border-gray-700 flex flex-col items-center justify-center text-center">
-            <div className="text-2xl font-bold text-gray-100">{stats.activeDebates}</div>
+            <div className="text-2xl font-bold text-gray-100">
+              {stats.activeDebates}
+            </div>
             <div className="text-sm text-gray-400">Active Debates</div>
           </div>
           <div className="bg-gray-800/50 backdrop-blur-sm rounded-lg p-4 border border-gray-700 flex flex-col items-center justify-center text-center">
-            <div className="text-2xl font-bold text-gray-100">{stats.usersOnline}</div>
+            <div className="text-2xl font-bold text-gray-100">
+              {stats.usersOnline}
+            </div>
             <div className="text-sm text-gray-400">Users Online</div>
           </div>
           <div className="bg-gray-800/50 backdrop-blur-sm rounded-lg p-4 border border-gray-700 flex flex-col items-center justify-center text-center">
-            <div className="text-2xl font-bold text-gray-100">{stats.debatesToday}</div>
+            <div className="text-2xl font-bold text-gray-100">
+              {stats.debatesToday}
+            </div>
             <div className="text-sm text-gray-400">Debates Today</div>
           </div>
         </div>
