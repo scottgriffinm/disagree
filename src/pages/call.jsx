@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Globe, ArrowLeft, UserX } from 'lucide-react';
+import { useSocket } from '../app.jsx';
+import { useLocation } from 'wouter';
 
 const VoiceCallRoom = () => {
   // Extract query params from URL
@@ -40,6 +42,30 @@ const VoiceCallRoom = () => {
 
     return () => clearInterval(interval);
   }, []);
+  
+    // Listen for redirect events
+  useEffect(() => {
+    if (!socket) return;
+
+    const handleRedirectHome = () => {
+      setLocation('/');
+    };
+
+    const handleRedirectWaiting = ({ room }) => {
+      // Send owner back to waiting with room info
+      setLocation(
+        `/waiting?topic=${encodeURIComponent(room.name)}&party=${encodeURIComponent(room.stance.party)}&percentage=${room.stance.percentage}`
+      );
+    };
+
+    socket.on('redirect-home', handleRedirectHome);
+    socket.on('redirect-waiting', handleRedirectWaiting);
+
+    return () => {
+      socket.off('redirect-home', handleRedirectHome);
+      socket.off('redirect-waiting', handleRedirectWaiting);
+    };
+  }, [socket, setLocation]);
 
   const getSquareColor = (color, active) => {
     if (!active) return 'bg-gray-800/50';
