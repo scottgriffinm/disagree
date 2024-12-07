@@ -1,3 +1,5 @@
+// server/server.js
+
 const express = require('express');
 const path = require('path');
 const http = require('http');
@@ -17,7 +19,6 @@ let debatesToday = rooms.length;
 // Maps socket.id to { roomId, isOwner: boolean }
 let socketToRoom = {};
 
-// API endpoints
 app.get('/api/rooms', (req, res) => {
   res.json(rooms);
 });
@@ -30,7 +31,6 @@ app.get('/api/stats', (req, res) => {
   });
 });
 
-// Serve React app for any other routes
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, '../build', 'index.html'));
 });
@@ -88,26 +88,22 @@ io.on('connection', (socket) => {
 
     socket.join(`room-${room.id}`);
     room.participants += 1;
+
     socketToRoom[socket.id] = { roomId: room.id, isOwner: false };
 
+    // If second participant joined, start the call immediately
     if (room.participants === room.maxParticipants) {
-      io.to(`room-${room.id}`).emit('start-call', { room });
+      const participants = Array.from(io.sockets.adapter.rooms.get(`room-${room.id}`) || []);
+      io.to(`room-${room.id}`).emit('start-call', { room, participants });
     }
 
     if (callback) callback({ room });
   });
 
-  // WebRTC signaling
-  socket.on('signal', (data) => {
-    const { target, description } = data;
-    io.to(target).emit('signal', { sender: socket.id, description });
-  });
-
-  // Handle new partner request
+  // Handle "new-partner" request
   socket.on('new-partner', (callback) => {
     const userInfo = socketToRoom[socket.id];
     if (!userInfo) return;
-
     const { roomId, isOwner } = userInfo;
     if (!isOwner) return;
 
@@ -118,22 +114,31 @@ io.on('connection', (socket) => {
     const nonOwnerSocketId = participants.find((id) => id !== socket.id);
 
     if (nonOwnerSocketId) {
+      // Emit redirect event for the non-owner
       io.to(nonOwnerSocketId).emit('redirect-home');
       io.sockets.sockets.get(nonOwnerSocketId)?.leave(`room-${roomId}`);
       delete socketToRoom[nonOwnerSocketId];
     }
 
+    // Update room participant count
     room.participants = 1;
 
     if (callback) callback({ success: true });
     socket.emit('redirect-waiting', { room });
   });
 
+  // Signaling event forwarding
+  socket.on('signal', ({ target, description, roomId }) => {
+    io.to(target).emit('signal', {
+      sender: socket.id,
+      description
+    });
+  });
+
   // Handle disconnection
   socket.on('disconnect', () => {
     activeConnections--;
     console.log('A user disconnected. Total users online:', activeConnections);
-
     io.emit('stats-update', {
       usersOnline: activeConnections,
       activeDebates: rooms.length,
@@ -149,34 +154,20 @@ io.on('connection', (socket) => {
     if (!room) return;
 
     delete socketToRoom[socket.id];
-    room.participants -= 1;
 
+    room.participants -= 1;
     if (isOwner) {
+      // Owner left: if there was another participant, send them home
       io.to(`room-${room.id}`).emit('redirect-home');
+      // Remove the room from the list as it's closed now
       rooms = rooms.filter((r) => r.id !== room.id);
     } else {
+      // A participant (not owner) left:
       const ownerSocketId = room.roomCreator;
       if (io.sockets.sockets.get(ownerSocketId)) {
         io.to(ownerSocketId).emit('redirect-waiting', { room });
       }
     }
-  });
-
-  // Handle user leaving a room
-  socket.on('leave-room', (roomId) => {
-    const room = rooms.find((r) => r.id === roomId);
-    if (!room) return;
-
-    socket.leave(`room-${roomId}`);
-    room.participants--;
-
-    if (room.participants === 0) {
-      rooms = rooms.filter((r) => r.id !== roomId);
-    } else {
-      io.to(`room-${roomId}`).emit('user-left', socket.id);
-    }
-
-    delete socketToRoom[socket.id];
   });
 });
 
