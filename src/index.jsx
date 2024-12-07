@@ -3,6 +3,7 @@ import ReactDOM from "react-dom";
 import App from "./app.jsx";
 import { HelmetProvider } from 'react-helmet-async';
 import './styles/styles.css';
+
 /**
 * Root of react site 
 *
