@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Search, ArrowUpDown, Plus, Globe } from "lucide-react";
 import { useSocket } from "../app.jsx"; // or the file where the context is defined
-import { Link } from "wouter"; // import Link from wouter for client-side navigation
+import { Link, useLocation } from "wouter"; // import Link and useLocation for client-side navigation
 
 const DisagreePlatform = () => {
   const socket = useSocket(); // Access the shared socket
@@ -25,6 +25,7 @@ const DisagreePlatform = () => {
   });
   const [currentPage, setCurrentPage] = useState(1);
   const roomsPerPage = 5;
+  const [location, setLocation] = useLocation();
 
   useEffect(() => {
     const fetchRooms = async () => {
@@ -198,6 +199,20 @@ const DisagreePlatform = () => {
     setCurrentPage(page);
   };
 
+  const handleJoinRoom = (room) => {
+    socket.emit('join-room', room.id, (response) => {
+      if (response.error) {
+        console.error("Failed to join room:", response.error);
+        return;
+      }
+
+      const { room: joinedRoom } = response;
+      setLocation(
+        `/waiting?topic=${encodeURIComponent(joinedRoom.name)}&party=${encodeURIComponent(joinedRoom.stance.party)}&percentage=${encodeURIComponent(joinedRoom.stance.percentage)}`
+      );
+    });
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
       <div className="max-w-6xl mx-auto p-6">
@@ -242,12 +257,8 @@ const DisagreePlatform = () => {
 
         {/* Search and Filters Container */}
         <div className="space-y-4">
-          {" "}
-          {/* Reduced overall spacing */}
           {/* Search */}
           <div className="relative mb-4">
-            {" "}
-            {/* Reduced margin below search bar */}
             <input
               type="text"
               placeholder="Search rooms..."
@@ -340,8 +351,6 @@ const DisagreePlatform = () => {
 
         {/* Table Section */}
         <div className="bg-gray-800/50 backdrop-blur-sm rounded-lg shadow-xl border border-gray-700 mt-4 overflow-hidden">
-          {" "}
-          {/* Reduced margin above table */}
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
@@ -444,6 +453,11 @@ const DisagreePlatform = () => {
                             : "bg-gray-700 text-gray-400 cursor-not-allowed"
                         }`}
                         disabled={!isRoomOpen(room)}
+                        onClick={() => {
+                          if (isRoomOpen(room)) {
+                            handleJoinRoom(room);
+                          }
+                        }}
                       >
                         <span>{isRoomOpen(room) ? "Join" : "Full"}</span>
                       </button>

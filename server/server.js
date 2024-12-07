@@ -31,6 +31,19 @@ let rooms = [];
 let activeConnections = 0;
 let debatesToday = rooms.length;
 
+// Restore the API endpoints for rooms and stats here
+app.get('/api/rooms', (req, res) => {
+  res.json(rooms);
+});
+
+app.get('/api/stats', (req, res) => {
+  res.json({
+    usersOnline: activeConnections,
+    activeDebates: rooms.length,
+    debatesToday,
+  });
+});
+
 // Fallback to serve React app for any other routes
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, '../build', 'index.html'));
