@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Globe, ArrowLeft, UserX } from "lucide-react";
 import { useSocket } from "../app.jsx";
 import { useLocation } from "wouter";
@@ -7,6 +7,8 @@ const VoiceCallRoom = () => {
   // Extract query params from URL
   const socket = useSocket();
   const [location, setLocation] = useLocation();
+   const [peers, setPeers] = useState({});
+  const localStreamRef = useRef(null);
 
   const searchParams = new URLSearchParams(window.location.search);
   const topic = searchParams.get("topic") || "Waiting for a topic...";
@@ -22,6 +24,31 @@ const VoiceCallRoom = () => {
     const colors = ["blue", "red", "purple"];
     return colors[Math.floor(Math.random() * colors.length)];
   }
+  
+   const createPeerConnection = (userId) => {
+    const peerConnection = new RTCPeerConnection();
+    localStreamRef.current.getTracks().forEach((track) =>
+      peerConnection.addTrack(track, localStreamRef.current)
+    );
+
+    peerConnection.onicecandidate = (event) => {
+      if (event.candidate) {
+        socket.emit('signal', {
+          target: userId,
+          description: event.candidate,
+        });
+      }
+    };
+
+    peerConnection.ontrack = (event) => {
+      const audio = document.createElement('audio');
+      audio.srcObject = event.streams[0];
+      audio.autoplay = true;
+      document.body.appendChild(audio); // Add remote audio to the UI
+    };
+
+    return peerConnection;
+  };
 
   const [gridData, setGridData] = useState(
     Array(gridWidth * gridHeight)
@@ -31,6 +58,55 @@ const VoiceCallRoom = () => {
         color: getRandomColor(),
       }))
   );
+  
+   useEffect(() => {
+    // Request microphone access and handle stream
+    const getMedia = async () => {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        localStreamRef.current = stream;
+        const audio = document.createElement('audio');
+        audio.srcObject = stream;
+        audio.autoplay = true;
+        document.body.appendChild(audio); // Add local audio to the UI
+      } catch (error) {
+        console.error('Error accessing media devices:', error);
+        alert('Microphone access is required to join the call.');
+      }
+    };
+
+    getMedia();
+
+    // Handle incoming WebRTC signals
+    socket.on('signal', async ({ sender, description }) => {
+      let peerConnection = peers[sender];
+      if (!peerConnection) {
+        peerConnection = createPeerConnection(sender);
+        setPeers((prev) => ({ ...prev, [sender]: peerConnection }));
+      }
+
+      if (description.type === 'offer') {
+        await peerConnection.setRemoteDescription(description);
+        const answer = await peerConnection.createAnswer();
+        await peerConnection.setLocalDescription(answer);
+        socket.emit('signal', {
+          target: sender,
+          description: peerConnection.localDescription,
+        });
+      } else if (description.type === 'answer') {
+        await peerConnection.setRemoteDescription(description);
+      } else if (description.candidate) {
+        await peerConnection.addIceCandidate(description);
+      }
+    });
+
+    // Clean up on component unmount
+    return () => {
+      socket.off('signal');
+      Object.values(peers).forEach((peer) => peer.close());
+      setPeers({});
+    };
+  }, [socket, peers]);
 
   useEffect(() => {
     const handleResize = () => {

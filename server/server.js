@@ -41,6 +41,12 @@ io.on('connection', (socket) => {
   activeConnections++;
   console.log('A user connected. Total users online:', activeConnections);
   
+    // Handle WebRTC signaling
+  socket.on('signal', (data) => {
+    const { target, description, room } = data;
+    io.to(target).emit('signal', { sender: socket.id, description, room });
+  });
+
   
   io.emit('stats-update', {
     usersOnline: activeConnections,
