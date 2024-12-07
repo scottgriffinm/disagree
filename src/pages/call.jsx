@@ -14,27 +14,53 @@ const VoiceCallRoom = () => {
   const percentage = searchParams.get("percentage");
   const isOwner = searchParams.get("owner") === "true";
 
-  const GRID_WIDTH = 12;
-  const GRID_HEIGHT = 4;
-
-  const [gridData, setGridData] = useState(
-    Array(GRID_WIDTH * GRID_HEIGHT)
-      .fill()
-      .map(() => ({
-        active: Math.random() < 0.5, // 50% chance of starting as active
-        color: getRandomColor(), // Random initial color
-      }))
-  );
+  // Determine grid width based on initial screen size
+  const [gridWidth, setGridWidth] = useState(() => (window.innerWidth < 500 ? 8 : 12));
+  const gridHeight = 4;
 
   function getRandomColor() {
     const colors = ["blue", "red", "purple"];
     return colors[Math.floor(Math.random() * colors.length)];
   }
 
+  const [gridData, setGridData] = useState(
+    Array(gridWidth * gridHeight)
+      .fill()
+      .map(() => ({
+        active: Math.random() < 0.5,
+        color: getRandomColor(),
+      }))
+  );
+
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth < 500 && gridWidth !== 8) {
+        setGridWidth(8);
+      } else if (window.innerWidth >= 500 && gridWidth !== 12) {
+        setGridWidth(12);
+      }
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, [gridWidth]);
+
+  // Reset grid data whenever gridWidth changes
+  useEffect(() => {
+    setGridData(
+      Array(gridWidth * gridHeight)
+        .fill()
+        .map(() => ({
+          active: Math.random() < 0.5,
+          color: getRandomColor(),
+        }))
+    );
+  }, [gridWidth, gridHeight]);
+
   useEffect(() => {
     const interval = setInterval(() => {
-      setGridData((prev) => {
-        return prev.map((square) => {
+      setGridData((prev) =>
+        prev.map((square) => {
           if (Math.random() < 0.1) {
             return {
               active: !square.active,
@@ -42,8 +68,8 @@ const VoiceCallRoom = () => {
             };
           }
           return square;
-        });
-      });
+        })
+      );
     }, 1500);
 
     return () => clearInterval(interval);
@@ -61,11 +87,9 @@ const VoiceCallRoom = () => {
     const handleRedirectWaiting = ({ room }) => {
       // Send owner back to waiting with room info
       setLocation(
-        `/waiting?topic=${encodeURIComponent(
-          room.name
-        )}&party=${encodeURIComponent(room.stance.party)}&percentage=${
-          room.stance.percentage
-        }`
+        `/waiting?topic=${encodeURIComponent(room.name)}&party=${encodeURIComponent(
+          room.stance.party
+        )}&percentage=${room.stance.percentage}`
       );
     };
 
@@ -77,21 +101,23 @@ const VoiceCallRoom = () => {
       socket.off("redirect-waiting", handleRedirectWaiting);
     };
   }, [socket, setLocation]);
-  
-  const handleNewPartner = () => {
-  if (!socket) return;
 
-  socket.emit('new-partner', (response) => {
-    if (response.success) {
-      // Owner gets redirected to the waiting page with room info
-      setLocation(
-        `/waiting?topic=${encodeURIComponent(topic)}&party=${encodeURIComponent(party)}&percentage=${percentage}`
-      );
-    } else {
-      console.error("Failed to handle new partner action.");
-    }
-  });
-};
+  const handleNewPartner = () => {
+    if (!socket) return;
+
+    socket.emit("new-partner", (response) => {
+      if (response.success) {
+        // Owner gets redirected to the waiting page with room info
+        setLocation(
+          `/waiting?topic=${encodeURIComponent(topic)}&party=${encodeURIComponent(
+            party
+          )}&percentage=${percentage}`
+        );
+      } else {
+        console.error("Failed to handle new partner action.");
+      }
+    });
+  };
 
   const getSquareColor = (color, active) => {
     if (!active) return "bg-gray-800/50";
@@ -129,9 +155,10 @@ const VoiceCallRoom = () => {
               <span>Back to Rooms</span>
             </a>
             {isOwner && (
-              <button 
+              <button
                 className="flex items-center space-x-2 px-4 py-2 rounded-lg bg-gray-800/50 text-gray-300 border border-gray-700 hover:bg-gray-700/50 transition-colors"
-                onClick={handleNewPartner}>
+                onClick={handleNewPartner}
+              >
                 <UserX size={20} />
                 <span>New Partner</span>
               </button>
@@ -154,7 +181,7 @@ const VoiceCallRoom = () => {
         {/* Digital Random Grid Visualizer */}
         <div className="bg-gray-800/50 backdrop-blur-sm rounded-lg border border-gray-700 p-8">
           <div className="h-48 bg-gray-900/50 rounded-lg flex items-center justify-center">
-            <div className="grid grid-cols-12 gap-2">
+            <div className={`grid ${gridWidth === 8 ? "grid-cols-8" : "grid-cols-12"} gap-2`}>
               {gridData.map((square, index) => (
                 <div
                   key={index}
