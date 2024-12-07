@@ -103,6 +103,7 @@ io.on('connection', (socket) => {
     if (callback) callback({ room });
   });
 
+
   // Handle disconnection
   socket.on('disconnect', () => {
     activeConnections--;
