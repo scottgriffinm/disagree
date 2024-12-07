@@ -40,7 +40,8 @@ app.get('*', (req, res) => {
 io.on('connection', (socket) => {
   activeConnections++;
   console.log('A user connected. Total users online:', activeConnections);
-
+  
+  
   io.emit('stats-update', {
     usersOnline: activeConnections,
     activeDebates: rooms.length,
