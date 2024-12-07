@@ -45,7 +45,7 @@ const CreateRoom = () => {
         stance,
       };
 
-      // Instead of a fetch call, use socket.io to create the room
+      // create the room
       socket.emit("create-room", newRoom, (response) => {
         if (response && response.error) {
           console.error("Error creating room:", response.error);
@@ -61,6 +61,23 @@ const CreateRoom = () => {
     } else {
       setShowError(true);
     }
+  };
+  
+  const handleNewPartner = (e) => {
+    // create the room
+      socket.emit("create-room", newRoom, (response) => {
+        if (response && response.error) {
+          console.error("Error creating room:", response.error);
+          return;
+        }
+
+        const { room } = response;
+        // Redirect the user to the waiting page, passing the topic and stance in the query
+        setLocation(
+          `/waiting?topic=${encodeURIComponent(room.name)}&party=${encodeURIComponent(room.stance.party)}&percentage=${room.stance.percentage}`
+        );
+      });
+    
   };
 
   const handleStanceChange = (e) => {
