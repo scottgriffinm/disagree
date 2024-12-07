@@ -1,10 +1,10 @@
-import React, { createContext, useContext, useEffect, useRef } from 'react';
-import { io } from 'socket.io-client';
+import React, { createContext, useContext, useEffect, useRef } from "react";
+import { io } from "socket.io-client";
 
-// Create the context
+// Create context
 const SocketContext = createContext(null);
 
-// Custom hook to use the socket
+// Hook to use the socket context
 export const useSocket = () => {
   const context = useContext(SocketContext);
   if (!context) {
@@ -13,15 +13,15 @@ export const useSocket = () => {
   return context;
 };
 
-// SocketProvider to initialize the socket and provide it to the app
+// Socket provider
 export const SocketProvider = ({ children }) => {
   const socketRef = useRef(null);
 
   useEffect(() => {
-    socketRef.current = io(); // Initialize the socket connection
+    socketRef.current = io(); // Initialize Socket.IO connection
 
     return () => {
-      socketRef.current.disconnect(); // Disconnect on unmount
+      socketRef.current.disconnect(); // Disconnect socket on unmount
       socketRef.current = null; // Cleanup
     };
   }, []);

@@ -8,7 +8,7 @@ import "./styles/styles.css";
 ReactDOM.render(
   <React.StrictMode>
     <HelmetProvider>
-      <SocketProvider> {/* Wrap the entire app */}
+      <SocketProvider> {/* Wrap everything */}
         <App />
       </SocketProvider>
     </HelmetProvider>

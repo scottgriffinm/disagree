@@ -6,6 +6,7 @@ import DisagreePlatform from "./pages/home.jsx";
 import CreateRoom from "./pages/create.jsx";
 import VoiceCallWaiting from "./pages/waiting.jsx";
 import VoiceCallRoom from "./pages/call.jsx";
+
 export default function PageRouter() {
   return (
     <>
