@@ -28,16 +28,18 @@ const DisagreePlatform = () => {
   const [location, setLocation] = useLocation();
 
   useEffect(() => {
-    const fetchRooms = async () => {
-      try {
-        const response = await fetch("/api/rooms");
-        const data = await response.json();
-        setAllRooms(data.sort((a, b) => a.participants - b.participants)); // Set all rooms
-        setRooms(data.sort((a, b) => a.participants - b.participants));
-      } catch (error) {
-        console.error("Error fetching rooms:", error);
-      }
-    };
+const fetchRooms = async () => {
+  try {
+    const response = await fetch("/api/rooms");
+    const data = await response.json();
+    // Filter out full rooms
+    const openRooms = data.filter((room) => room.maxParticipants > room.participants);
+    setAllRooms(openRooms.sort((a, b) => a.participants - b.participants)); // Set all rooms
+    setRooms(openRooms.sort((a, b) => a.participants - b.participants));
+  } catch (error) {
+    console.error("Error fetching rooms:", error);
+  }
+};
 
     const fetchStats = async () => {
       try {
@@ -355,8 +357,8 @@ const DisagreePlatform = () => {
     {rooms.length === 0 ? (
       // Display a message when no rooms are available
       <div className="flex items-center justify-center py-12">
-        <p className="text-gray-300 text-lg font-medium">
-          No rooms available, refresh or create your own.
+        <p className="text-gray-400 text-lg font-medium">
+          No rooms available, please refresh or create your own.
         </p>
       </div>
     ) : (
