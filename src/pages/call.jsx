@@ -60,53 +60,64 @@ const VoiceCallRoom = () => {
   );
   
    useEffect(() => {
-    // Request microphone access and handle stream
-    const getMedia = async () => {
-      try {
-        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-        localStreamRef.current = stream;
-        const audio = document.createElement('audio');
-        audio.srcObject = stream;
-        audio.autoplay = true;
-        document.body.appendChild(audio); // Add local audio to the UI
-      } catch (error) {
-        console.error('Error accessing media devices:', error);
-        alert('Microphone access is required to join the call.');
-      }
-    };
+  // Request microphone access and handle stream
+  const getMedia = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      localStreamRef.current = stream;
+      const audio = document.createElement('audio');
+      audio.srcObject = stream;
+      audio.autoplay = true;
+      document.body.appendChild(audio); // Add local audio to the UI
+    } catch (error) {
+      console.error('Error accessing media devices:', error);
+      alert('Microphone access is required to join the call.');
+    }
+  };
 
-    getMedia();
+  getMedia();
 
-    // Handle incoming WebRTC signals
-    socket.on('signal', async ({ sender, description }) => {
-      let peerConnection = peers[sender];
-      if (!peerConnection) {
-        peerConnection = createPeerConnection(sender);
-        setPeers((prev) => ({ ...prev, [sender]: peerConnection }));
-      }
+  // Handle incoming WebRTC signals
+  socket.on('signal', async ({ sender, description }) => {
+    let peerConnection = peers[sender];
+    if (!peerConnection) {
+      peerConnection = createPeerConnection(sender);
+      setPeers((prev) => ({ ...prev, [sender]: peerConnection }));
+    }
 
-      if (description.type === 'offer') {
-        await peerConnection.setRemoteDescription(description);
-        const answer = await peerConnection.createAnswer();
-        await peerConnection.setLocalDescription(answer);
-        socket.emit('signal', {
-          target: sender,
-          description: peerConnection.localDescription,
-        });
-      } else if (description.type === 'answer') {
-        await peerConnection.setRemoteDescription(description);
-      } else if (description.candidate) {
-        await peerConnection.addIceCandidate(description);
-      }
+    if (description.type === 'offer') {
+      await peerConnection.setRemoteDescription(description);
+      const answer = await peerConnection.createAnswer();
+      await peerConnection.setLocalDescription(answer);
+      socket.emit('signal', {
+        target: sender,
+        description: peerConnection.localDescription,
+      });
+    } else if (description.type === 'answer') {
+      await peerConnection.setRemoteDescription(description);
+    } else if (description.candidate) {
+      await peerConnection.addIceCandidate(description);
+    }
+  });
+
+  // Clean up on component unmount
+  return () => {
+    socket.off('signal');
+    
+    // Stop and close all peer connections
+    Object.values(peers).forEach((peer) => {
+      peer.getSenders().forEach((sender) => sender.track.stop()); // Stop all tracks
+      peer.close();
     });
-
-    // Clean up on component unmount
-    return () => {
-      socket.off('signal');
-      Object.values(peers).forEach((peer) => peer.close());
-      setPeers({});
-    };
-  }, [socket, peers]);
+    setPeers({});
+    
+    // Stop local media stream
+    if (localStreamRef.current) {
+      localStreamRef.current.getTracks().forEach((track) => track.stop());
+      localStreamRef.current = null;
+    }
+  };
+}, [socket, peers]);
 
   useEffect(() => {
     const handleResize = () => {
