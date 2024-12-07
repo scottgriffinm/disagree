@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Globe, ArrowLeft } from "lucide-react";
-import { useLocation } from "wouter"; // Import useLocation for navigation
+import { useLocation } from "wouter"; 
+import { useSocket } from "../context/SocketContext"; // Import the socket context
 
 const CreateRoom = () => {
   const [formData, setFormData] = useState({
@@ -9,7 +10,7 @@ const CreateRoom = () => {
   });
   const [showError, setShowError] = useState(false);
   const [placeholderTopic, setPlaceholderTopic] = useState("");
-  
+
   const topics = [
     "Censorship online",
     "AR-15s should be legal",
@@ -27,7 +28,8 @@ const CreateRoom = () => {
     setPlaceholderTopic(randomTopic);
   }, []);
 
-  const [location, setLocation] = useLocation(); // Hook to change route
+  const [location, setLocation] = useLocation();
+  const socket = useSocket(); // Access the shared socket instance
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -43,26 +45,22 @@ const CreateRoom = () => {
         stance,
       };
 
-      try {
-        const response = await fetch("/api/rooms", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(newRoom),
-        });
-
-        if (!response.ok) {
-          throw new Error("Failed to create room");
+      // Emit the `create-room` event to the server
+      socket.emit("create-room", newRoom, (response) => {
+        if (response.error) {
+          console.error("Error creating room:", response.error);
+          return;
         }
 
-        const result = await response.json();
+        const { room } = response;
 
-        // Redirect the user to the waiting page, passing the topic and stance in the query
-        setLocation(`/waiting?topic=${encodeURIComponent(result.name)}&party=${encodeURIComponent(result.stance.party)}&percentage=${result.stance.percentage}`);
-      } catch (error) {
-        console.error("Error creating room:", error);
-      }
+        // Redirect to the waiting page with room data
+        setLocation(
+          `/waiting?topic=${encodeURIComponent(room.name)}&party=${encodeURIComponent(
+            room.stance.party
+          )}&percentage=${room.stance.percentage}`
+        );
+      });
     } else {
       setShowError(true);
     }
@@ -94,9 +92,9 @@ const CreateRoom = () => {
   };
 
   const getStanceColor = () => {
-    if (formData.stanceValue === 0) return "text-gray-400"; 
-    if (Math.abs(formData.stanceValue) < 25) return "text-purple-400"; 
-    return formData.stanceValue < 0 ? "text-blue-400" : "text-red-400"; 
+    if (formData.stanceValue === 0) return "text-gray-400";
+    if (Math.abs(formData.stanceValue) < 25) return "text-purple-400";
+    return formData.stanceValue < 0 ? "text-blue-400" : "text-red-400";
   };
 
   return (

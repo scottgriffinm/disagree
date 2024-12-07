@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { Search, ArrowUpDown, Plus, Globe } from "lucide-react";
-import { io } from "socket.io-client";
+import { useSocket } from "../context/SocketContext"; // Use the custom socket hook
 
 const DisagreePlatform = () => {
   const [allRooms, setAllRooms] = useState([]);
   const [rooms, setRooms] = useState([]);
-    const [stats, setStats] = useState({
+  const [stats, setStats] = useState({
     usersOnline: 0,
     activeDebates: 0,
     debatesToday: 0,
@@ -19,10 +19,12 @@ const DisagreePlatform = () => {
     right: false,
     left: false,
     open: false,
-    centrist: false, // New Centrist filter
+    centrist: false,
   });
   const [currentPage, setCurrentPage] = useState(1);
   const roomsPerPage = 5;
+
+  const socket = useSocket(); // Access the shared socket instance
 
   useEffect(() => {
     const fetchRooms = async () => {
@@ -39,8 +41,7 @@ const DisagreePlatform = () => {
     const fetchStats = async () => {
       try {
         const response = await fetch("/api/stats");
-        var data = await response.json();
-        data.usersOnline = data.usersOnline + 1; // + 1 hack to count user
+        const data = await response.json();
         setStats(data);
       } catch (error) {
         console.error("Error fetching stats:", error);
@@ -50,14 +51,16 @@ const DisagreePlatform = () => {
     fetchRooms();
     fetchStats();
 
-    // Socket.IO connection
-    const socket = io();
+    // Handle real-time updates from Socket.IO
+    socket.on("stats-update", (data) => {
+      setStats(data);
+    });
 
-    // Clean up socket connection on component unmount
+    // Cleanup on unmount
     return () => {
-      socket.disconnect();
+      socket.off("stats-update");
     };
-  }, []);
+  }, [socket]);
 
   const formatTimeAgo = (dateString) => {
     const date = new Date(dateString);
@@ -121,11 +124,10 @@ const DisagreePlatform = () => {
   };
 
   const applyFilters = (searchTerm, filters) => {
-    const filteredRooms = allRooms // Use allRooms as the source
+    const filteredRooms = allRooms
       .filter((room) => {
         let matchesFilter = true;
 
-        // Apply specific party filters
         if (filters.right) {
           matchesFilter =
             room.stance.party === "Right" && room.stance.percentage > 25;
@@ -134,16 +136,12 @@ const DisagreePlatform = () => {
             room.stance.party === "Left" && room.stance.percentage > 25;
         } else if (filters.centrist) {
           matchesFilter =
-            (room.stance.party === "Left" &&
-              room.stance.percentage <= 25) ||
-            (room.stance.party === "Right" &&
-              room.stance.percentage <= 25);
+            (room.stance.party === "Left" && room.stance.percentage <= 25) ||
+            (room.stance.party === "Right" && room.stance.percentage <= 25);
         }
 
-        // Apply the open filter if selected
         if (filters.open) {
-          matchesFilter =
-            matchesFilter && room.maxParticipants > room.participants;
+          matchesFilter = matchesFilter && isRoomOpen(room);
         }
 
         return matchesFilter;
@@ -155,9 +153,8 @@ const DisagreePlatform = () => {
     setRooms(filteredRooms);
     const totalPages = calculateTotalPages(filteredRooms);
 
-    // Adjust current page if it's invalid for the filtered result
     if (currentPage > totalPages) {
-      setCurrentPage(1); // Reset to the first page
+      setCurrentPage(1);
     }
   };
 
@@ -173,7 +170,7 @@ const DisagreePlatform = () => {
       const startPage = Math.max(2, currentPage - 1);
       const endPage = Math.min(totalPages - 1, currentPage + 1);
 
-      pages.push(1); // Always show the first page
+      pages.push(1);
 
       if (startPage > 2) {
         pages.push("...");
@@ -187,7 +184,7 @@ const DisagreePlatform = () => {
         pages.push("...");
       }
 
-      pages.push(totalPages); // Always show the last page
+      pages.push(totalPages);
     }
 
     return pages;
