@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Globe, ArrowLeft } from "lucide-react";
 import { useSocket } from "../app.jsx"; // or the file where the context is defined
-import { useLocation } from "wouter"; // Import useLocation for navigation
+import { Link, useLocation } from "wouter"; // Import useLocation for navigation
 
 const CreateRoom = () => {
   const [formData, setFormData] = useState({
