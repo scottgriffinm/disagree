@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { Search, ArrowUpDown, Plus, Globe } from "lucide-react";
-import { io } from "socket.io-client";
+import { useSocket } from "../app.jsx"; // or the file where the context is defined
+import { Link } from "wouter"; // import Link from wouter for client-side navigation
+
 
 const DisagreePlatform = () => {
   const [allRooms, setAllRooms] = useState([]);
