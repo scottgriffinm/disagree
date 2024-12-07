@@ -8,13 +8,13 @@ const VoiceCallWaiting = () => {
     "Waiting for a partner to join..."
   );
   const [fade, setFade] = useState(true);
-  
-  const [location] = useLocation();
-  const params = new URLSearchParams(location.split('?')[1] || "");
-  console.log
-  const topic = params.get('topic') || "Waiting for a topic...";
-  const party = params.get('party');
-  const percentage = params.get('percentage');
+
+  // Instead of using location from wouter for params,
+  // just use window.location.search
+  const searchParams = new URLSearchParams(window.location.search);
+  const topic = searchParams.get("topic") || "Waiting for a topic...";
+  const party = searchParams.get("party");
+  const percentage = searchParams.get("percentage");
   const stanceText = (party && percentage) ? `${percentage}% ${party}` : "";
 
 const messages = [
@@ -50,7 +50,6 @@ const messages = [
   '"The more I see, the less I know for sure."',
 ];
 
-  // Dot animation logic (unchanged)...
   useEffect(() => {
     const interval = setInterval(() => {
       setDots((prev) => {
@@ -68,19 +67,20 @@ const messages = [
         return newDots;
       });
     }, 200);
+
     return () => clearInterval(interval);
   }, []);
 
-  // Message rotation logic (unchanged)
   useEffect(() => {
     const interval = setInterval(() => {
-      setFade(false); 
+      setFade(false);
       setTimeout(() => {
         const randomIndex = Math.floor(Math.random() * messages.length);
         setCurrentMessage(messages[randomIndex]);
-        setFade(true); 
-      }, 4000); 
-    }, 12000); 
+        setFade(true);
+      }, 4000);
+    }, 12000);
+
     return () => clearInterval(interval);
   }, []);
 
@@ -108,9 +108,7 @@ const messages = [
 
         {/* Topic Card */}
         <div className="bg-gray-800/50 backdrop-blur-sm rounded-lg border border-gray-700 p-6 mb-8">
-          <h2 className="text-xl font-semibold text-gray-100">
-            {topic}
-          </h2>
+          <h2 className="text-xl font-semibold text-gray-100">{topic}</h2>
           {stanceText && (
             <div className="flex justify-between mt-2">
               <span className="px-3 py-1 rounded-full text-sm font-medium bg-blue-500/20 text-blue-300 border border-blue-500/30">
@@ -120,7 +118,7 @@ const messages = [
           )}
         </div>
 
-        {/* Custom Loading Animation */}
+        {/* Loading Animation */}
         <div className="bg-gray-800/50 backdrop-blur-sm rounded-lg border border-gray-700 p-8">
           <div className="h-60 bg-gray-900/50 rounded-lg flex flex-col items-center justify-center gap-8 relative">
             <div className="absolute inset-0 flex flex-col items-center gap-8 pt-16">
