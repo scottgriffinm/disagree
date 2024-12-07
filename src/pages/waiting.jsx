@@ -91,7 +91,7 @@ const VoiceCallWaiting = () => {
     // Listen for the 'start-call' event from the server
     socket.on('start-call', ({ room }) => {
       setLocation(
-        `/call?topic=${encodeURIComponent(room.name)}&party=${encodeURIComponent(room.stance.party)}&percentage=${encodeURIComponent(room.stance.percentage)}`
+        `/call?topic=${encodeURIComponent(room.name)}&party=${encodeURIComponent(room.stance.party)}&percentage=${encodeURIComponent(room.stance.percentage)}&owner=true`
       );
     });
 

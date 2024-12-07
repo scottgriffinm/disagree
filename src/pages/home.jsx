@@ -208,7 +208,7 @@ const DisagreePlatform = () => {
 
       const { room: joinedRoom } = response;
       setLocation(
-        `/call?topic=${encodeURIComponent(joinedRoom.name)}&party=${encodeURIComponent(joinedRoom.stance.party)}&percentage=${encodeURIComponent(joinedRoom.stance.percentage)}`
+        `/call?topic=${encodeURIComponent(joinedRoom.name)}&party=${encodeURIComponent(joinedRoom.stance.party)}&percentage=${encodeURIComponent(joinedRoom.stance.percentage)}&owner=false`
       );
     });
   };

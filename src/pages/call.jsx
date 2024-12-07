@@ -1,38 +1,44 @@
-import React, { useState, useEffect } from 'react';
-import { Globe, ArrowLeft, UserX } from 'lucide-react';
-import { useSocket } from '../app.jsx';
-import { useLocation } from 'wouter';
+import React, { useState, useEffect } from "react";
+import { Globe, ArrowLeft, UserX } from "lucide-react";
+import { useSocket } from "../app.jsx";
+import { useLocation } from "wouter";
 
 const VoiceCallRoom = () => {
   // Extract query params from URL
+  const socket = useSocket();
+  const [location, setLocation] = useLocation();
+
   const searchParams = new URLSearchParams(window.location.search);
   const topic = searchParams.get("topic") || "Waiting for a topic...";
   const party = searchParams.get("party");
   const percentage = searchParams.get("percentage");
+  const isOwner = searchParams.get("owner") === "true";
 
   const GRID_WIDTH = 12;
   const GRID_HEIGHT = 4;
 
   const [gridData, setGridData] = useState(
-    Array(GRID_WIDTH * GRID_HEIGHT).fill().map(() => ({
-      active: Math.random() < 0.5, // 50% chance of starting as active
-      color: getRandomColor(), // Random initial color
-    }))
+    Array(GRID_WIDTH * GRID_HEIGHT)
+      .fill()
+      .map(() => ({
+        active: Math.random() < 0.5, // 50% chance of starting as active
+        color: getRandomColor(), // Random initial color
+      }))
   );
 
   function getRandomColor() {
-    const colors = ['blue', 'red', 'purple'];
+    const colors = ["blue", "red", "purple"];
     return colors[Math.floor(Math.random() * colors.length)];
   }
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setGridData(prev => {
-        return prev.map(square => {
+      setGridData((prev) => {
+        return prev.map((square) => {
           if (Math.random() < 0.1) {
             return {
               active: !square.active,
-              color: Math.random() < 0.05 ? getRandomColor() : square.color
+              color: Math.random() < 0.05 ? getRandomColor() : square.color,
             };
           }
           return square;
@@ -42,38 +48,47 @@ const VoiceCallRoom = () => {
 
     return () => clearInterval(interval);
   }, []);
-  
-    // Listen for redirect events
+
+  // Listen for redirect events
   useEffect(() => {
     if (!socket) return;
 
     const handleRedirectHome = () => {
-      setLocation('/');
+      // Send non-owner back to home page
+      setLocation("/");
     };
 
     const handleRedirectWaiting = ({ room }) => {
       // Send owner back to waiting with room info
       setLocation(
-        `/waiting?topic=${encodeURIComponent(room.name)}&party=${encodeURIComponent(room.stance.party)}&percentage=${room.stance.percentage}`
+        `/waiting?topic=${encodeURIComponent(
+          room.name
+        )}&party=${encodeURIComponent(room.stance.party)}&percentage=${
+          room.stance.percentage
+        }`
       );
     };
 
-    socket.on('redirect-home', handleRedirectHome);
-    socket.on('redirect-waiting', handleRedirectWaiting);
+    socket.on("redirect-home", handleRedirectHome);
+    socket.on("redirect-waiting", handleRedirectWaiting);
 
     return () => {
-      socket.off('redirect-home', handleRedirectHome);
-      socket.off('redirect-waiting', handleRedirectWaiting);
+      socket.off("redirect-home", handleRedirectHome);
+      socket.off("redirect-waiting", handleRedirectWaiting);
     };
   }, [socket, setLocation]);
 
   const getSquareColor = (color, active) => {
-    if (!active) return 'bg-gray-800/50';
-    switch(color) {
-      case 'blue': return 'bg-blue-500';
-      case 'red': return 'bg-red-500';
-      case 'purple': return 'bg-purple-500';
-      default: return 'bg-blue-500';
+    if (!active) return "bg-gray-800/50";
+    switch (color) {
+      case "blue":
+        return "bg-blue-500";
+      case "red":
+        return "bg-red-500";
+      case "purple":
+        return "bg-purple-500";
+      default:
+        return "bg-blue-500";
     }
   };
 
@@ -91,19 +106,19 @@ const VoiceCallRoom = () => {
             </a>
           </div>
           <div className="flex items-center space-x-4">
-            <a 
+            <a
               href="/"
               className="flex items-center space-x-2 text-gray-400 hover:text-gray-300 transition-colors"
             >
               <ArrowLeft size={20} />
               <span>Back to Rooms</span>
             </a>
-            <button 
-              className="flex items-center space-x-2 px-4 py-2 rounded-lg bg-gray-800/50 text-gray-300 border border-gray-700 hover:bg-gray-700/50 transition-colors"
-            >
-              <UserX size={20} />
-              <span>New Partner</span>
-            </button>
+            {isOwner && (
+              <button className="flex items-center space-x-2 px-4 py-2 rounded-lg bg-gray-800/50 text-gray-300 border border-gray-700 hover:bg-gray-700/50 transition-colors">
+                <UserX size={20} />
+                <span>New Partner</span>
+              </button>
+            )}
           </div>
         </div>
 
@@ -126,9 +141,10 @@ const VoiceCallRoom = () => {
               {gridData.map((square, index) => (
                 <div
                   key={index}
-                  className={`w-6 h-6 border border-gray-800 transition-all duration-1000 ${
-                    getSquareColor(square.color, square.active)
-                  } opacity-90`}
+                  className={`w-6 h-6 border border-gray-800 transition-all duration-1000 ${getSquareColor(
+                    square.color,
+                    square.active
+                  )} opacity-90`}
                 />
               ))}
             </div>
