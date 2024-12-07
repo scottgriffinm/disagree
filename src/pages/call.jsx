@@ -2,7 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { Globe, ArrowLeft, UserX } from 'lucide-react';
 
 const VoiceCallRoom = () => {
-  // 12x4 grid
+  // Extract query params from URL
+  const searchParams = new URLSearchParams(window.location.search);
+  const topic = searchParams.get("topic") || "Waiting for a topic...";
+  const party = searchParams.get("party");
+  const percentage = searchParams.get("percentage");
+
   const GRID_WIDTH = 12;
   const GRID_HEIGHT = 4;
 
@@ -78,12 +83,14 @@ const VoiceCallRoom = () => {
 
         {/* Topic Card */}
         <div className="bg-gray-800/50 backdrop-blur-sm rounded-lg border border-gray-700 p-6 mb-8">
-          <h2 className="text-xl font-semibold text-gray-100">Should pineapple be on pizza?</h2>
-          <div className="flex justify-between mt-2">
-            <span className="px-3 py-1 rounded-full text-sm font-medium bg-blue-500/20 text-blue-300 border border-blue-500/30">
-              75% Left
-            </span>
-          </div>
+          <h2 className="text-xl font-semibold text-gray-100">{topic}</h2>
+          {party && percentage && (
+            <div className="flex justify-between mt-2">
+              <span className="px-3 py-1 rounded-full text-sm font-medium bg-blue-500/20 text-blue-300 border border-blue-500/30">
+                {percentage}% {party}
+              </span>
+            </div>
+          )}
         </div>
 
         {/* Digital Random Grid Visualizer */}

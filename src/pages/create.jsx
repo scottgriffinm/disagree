@@ -4,6 +4,7 @@ import { useSocket } from "../app.jsx"; // or the file where the context is defi
 import { Link, useLocation } from "wouter"; // Import useLocation for navigation
 
 const CreateRoom = () => {
+  const socket = useSocket();
   const [formData, setFormData] = useState({
     topic: "",
     stanceValue: 1,
@@ -30,7 +31,7 @@ const CreateRoom = () => {
 
   const [location, setLocation] = useLocation(); // Hook to change route
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
 
     if (formData.topic && formData.stanceValue !== 0) {
@@ -44,26 +45,19 @@ const CreateRoom = () => {
         stance,
       };
 
-      try {
-        const response = await fetch("/api/rooms", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(newRoom),
-        });
-
-        if (!response.ok) {
-          throw new Error("Failed to create room");
+      // Instead of a fetch call, use socket.io to create the room
+      socket.emit("create-room", newRoom, (response) => {
+        if (response && response.error) {
+          console.error("Error creating room:", response.error);
+          return;
         }
 
-        const result = await response.json();
-
+        const { room } = response;
         // Redirect the user to the waiting page, passing the topic and stance in the query
-        setLocation(`/waiting?topic=${encodeURIComponent(result.name)}&party=${encodeURIComponent(result.stance.party)}&percentage=${result.stance.percentage}`);
-      } catch (error) {
-        console.error("Error creating room:", error);
-      }
+        setLocation(
+          `/waiting?topic=${encodeURIComponent(room.name)}&party=${encodeURIComponent(room.stance.party)}&percentage=${room.stance.percentage}`
+        );
+      });
     } else {
       setShowError(true);
     }

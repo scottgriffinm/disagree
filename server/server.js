@@ -31,42 +31,6 @@ let rooms = [];
 let activeConnections = 0;
 let debatesToday = rooms.length;
 
-// API to get all rooms
-app.get('/api/rooms', (req, res) => {
-  res.json(rooms);
-});
-
-// API to get stats
-app.get('/api/stats', (req, res) => {
-  res.json({
-    usersOnline: activeConnections,
-    activeDebates: rooms.length,
-    debatesToday,
-  });
-});
-
-// API to create a new room
-app.post('/api/rooms', (req, res) => {
-  const { name, stance } = req.body;
-
-  if (!name || !stance || !stance.party || !stance.percentage) {
-    return res.status(400).json({ error: "Invalid room data" });
-  }
-
-  const newRoom = {
-    id: rooms.length + 1,
-    name,
-    stance,
-    participants: 1,
-    maxParticipants: 2,
-    created: new Date().toISOString(),
-  };
-
-  rooms.push(newRoom);
-  debatesToday += 1; // Increment debates today
-  res.status(201).json(newRoom);
-});
-
 // Fallback to serve React app for any other routes
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, '../build', 'index.html'));
@@ -80,6 +44,64 @@ io.on('connection', (socket) => {
   // Emit updated stats on new connection
   io.emit('stats-update', { usersOnline: activeConnections, activeDebates: rooms.length, debatesToday });
 
+  // Handle room creation
+  socket.on('create-room', (data, callback) => {
+    const { name, stance } = data;
+    if (!name || !stance || !stance.party || !stance.percentage) {
+      // If invalid data, you might send an error callback
+      if (callback) callback({ error: "Invalid room data" });
+      return;
+    }
+
+    const newRoom = {
+      id: rooms.length + 1,
+      name,
+      stance,
+      participants: 1,
+      maxParticipants: 2,
+      created: new Date().toISOString(),
+      roomCreator: socket.id // store who created the room
+    };
+
+    rooms.push(newRoom);
+    debatesToday += 1;
+
+    // Make the socket join this room (by room id or a unique namespace)
+    const roomId = `room-${newRoom.id}`;
+    socket.join(roomId);
+
+    // Send room info back to the client who created it
+    if (callback) callback({ room: newRoom });
+  });
+  
+  // Handle joining a room
+  socket.on('join-room', (roomId, callback) => {
+    // Find the room by ID
+    const room = rooms.find(r => r.id === parseInt(roomId));
+    if (!room) {
+      if (callback) callback({ error: "Room not found" });
+      return;
+    }
+
+    // Check if there's space
+    if (room.participants >= room.maxParticipants) {
+      if (callback) callback({ error: "Room is full" });
+      return;
+    }
+
+    // Join the room
+    socket.join(`room-${room.id}`);
+    room.participants += 1;
+
+    // If this is the second participant, start the call
+    if (room.participants === room.maxParticipants) {
+      // Emit an event to all users in that room to start the call
+      io.to(`room-${room.id}`).emit('start-call', { room });
+    }
+
+    if (callback) callback({ room });
+  });
+  
   // Handle disconnection
   socket.on('disconnect', () => {
     activeConnections--;
