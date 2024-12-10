@@ -356,11 +356,11 @@ const fetchRooms = async () => {
   <div className="overflow-x-auto">
     {rooms.length === 0 ? (
       // Display a message when no rooms are available
-      <div className="flex items-center justify-center py-12">
-        <p className="text-gray-400 text-lg font-medium">
-          No rooms available, please refresh or create your own.
-        </p>
-      </div>
+    <div className="flex items-center justify-center py-12">
+  <p className="text-gray-400 text-center text-sm sm:text-base md:text-lg font-medium leading-tight max-w-xs sm:max-w-md md:max-w-lg lg:max-w-none mx-auto">
+    No rooms available, please refresh or create your own.
+  </p>
+</div>
     ) : (
       <table className="w-full">
         <thead>
