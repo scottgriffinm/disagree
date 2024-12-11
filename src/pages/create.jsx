@@ -97,7 +97,7 @@ const CreateRoom = () => {
 
   const getStanceColor = () => {
     if (formData.stanceValue === 0) return "text-gray-400";
-    if (Math.abs(formData.stanceValue) < 25) return "text-purple-400";
+    if (Math.abs(formData.stanceValue) <= 25) return "text-purple-400";
     return formData.stanceValue < 0 ? "text-blue-400" : "text-red-400";
   };
 

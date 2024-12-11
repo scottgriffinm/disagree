@@ -56,6 +56,16 @@ const TextCallRoom = () => {
     }
   };
 
+  const getStanceBubbleColor = () => {
+    const percent = parseInt(percentage, 10); // Convert percentage to number
+    if (isNaN(percent)) return "bg-gray-700 text-gray-300"; // Default color if invalid
+    if (Math.abs(percent) <= 25)
+      return "bg-purple-500/20 text-purple-300 border-purple-500/30";
+    return party === "Left"
+      ? "bg-blue-500/20 text-blue-300 border-blue-500/30"
+      : "bg-red-500/20 text-red-300 border-red-500/30";
+  };
+
   const handleNewPartner = () => {
     if (!socket) return;
 
@@ -104,7 +114,9 @@ const TextCallRoom = () => {
           <h2 className="text-xl font-semibold text-gray-100">{topic}</h2>
           {party && percentage && (
             <div className="flex justify-between mt-2">
-              <span className="px-3 py-1 rounded-full text-sm font-medium bg-blue-500/20 text-blue-300 border border-blue-500/30">
+              <span
+                className={`px-3 py-1 rounded-full text-sm font-medium border ${getStanceBubbleColor()}`}
+              >
                 {percentage}% {party}
               </span>
             </div>

@@ -56,7 +56,7 @@ const VoiceCallWaiting = () => {
   const getStanceBubbleColor = () => {
     const percent = parseInt(percentage, 10); // Convert percentage to number
     if (isNaN(percent)) return "bg-gray-700 text-gray-300"; // Default color if invalid
-    if (Math.abs(percent) <= 24)
+    if (Math.abs(percent) <= 25)
       return "bg-purple-500/20 text-purple-300 border-purple-500/30";
     return party === "Left"
       ? "bg-blue-500/20 text-blue-300 border-blue-500/30"
