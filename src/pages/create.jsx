@@ -14,15 +14,7 @@ const CreateRoom = () => {
   const [placeholderTopic, setPlaceholderTopic] = useState("");
   
   const topics = [
-    "Censorship online",
-    "AR-15s should be legal",
-    "Transgender women in sports",
-    "Weed should be legal",
-    "War in Ukraine",
-    "Age limit in politics",
-    "Illegal immigration",
-    "Polygamy is harmful to society",
-    "War in Palestine",
+    "Enter your topic here...",
   ];
 
   useEffect(() => {
@@ -136,7 +128,7 @@ const CreateRoom = () => {
                 value={formData.topic}
                 onChange={handleTopicChange}
                 className="w-full bg-gray-900/50 border border-gray-700 rounded-lg py-2 px-4 text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all"
-                placeholder={`e.g., ${placeholderTopic}`}
+                placeholder={`${placeholderTopic}`}
               />
               {showError && formData.topic.length === 0 && (
                 <p className="text-red-400 text-sm mt-1">
