@@ -56,8 +56,8 @@ io.on('connection', (socket) => {
 
   // Handle room creation
   socket.on('create-room', (data, callback) => {
-    const { name, stance } = data;
-    if (!name || !stance || !stance.party || !stance.percentage) {
+    const { name, stance, type } = data;
+    if (!name || !stance || !stance.party || !stance.percentage || !type) {
       if (callback) callback({ error: "Invalid room data" });
       return;
     }

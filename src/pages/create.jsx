@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from "react";
-import { Globe, ArrowLeft } from "lucide-react";
-import { useSocket } from "../app.jsx"; // or the file where the context is defined
-import { Link, useLocation } from "wouter"; // Import useLocation for navigation
+import { Globe, ArrowLeft, MessageSquare, Mic } from "lucide-react";
+import { useSocket } from "../app.jsx";
+import { Link, useLocation } from "wouter";
 
 const CreateRoom = () => {
   const socket = useSocket();
   const [formData, setFormData] = useState({
     topic: "",
     stanceValue: 1,
+    roomType: "text"
   });
   const [showError, setShowError] = useState(false);
   const [placeholderTopic, setPlaceholderTopic] = useState("");
@@ -29,7 +30,7 @@ const CreateRoom = () => {
     setPlaceholderTopic(randomTopic);
   }, []);
 
-  const [location, setLocation] = useLocation(); // Hook to change route
+  const [location, setLocation] = useLocation();
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -43,9 +44,9 @@ const CreateRoom = () => {
       const newRoom = {
         name: formData.topic,
         stance,
+        type: formData.roomType
       };
 
-      // create the room
       socket.emit("create-room", newRoom, (response) => {
         if (response && response.error) {
           console.error("Error creating room:", response.error);
@@ -53,9 +54,8 @@ const CreateRoom = () => {
         }
 
         const { room } = response;
-        // Redirect the user to the waiting page, passing the topic and stance in the query
         setLocation(
-          `/waiting?topic=${encodeURIComponent(room.name)}&party=${encodeURIComponent(room.stance.party)}&percentage=${room.stance.percentage}`
+          `/waiting?topic=${encodeURIComponent(room.name)}&party=${encodeURIComponent(room.stance.party)}&percentage=${room.stance.percentage}&type=${room.type}`
         );
       });
     } else {
@@ -79,6 +79,13 @@ const CreateRoom = () => {
     if (showError) setShowError(false);
   };
 
+  const handleRoomTypeChange = (type) => {
+    setFormData((prev) => ({
+      ...prev,
+      roomType: type
+    }));
+  };
+
   const getStanceText = () => {
     if (formData.stanceValue === 0) return "Select a stance";
     if (formData.stanceValue < 0) {
@@ -89,9 +96,9 @@ const CreateRoom = () => {
   };
 
   const getStanceColor = () => {
-    if (formData.stanceValue === 0) return "text-gray-400"; 
-    if (Math.abs(formData.stanceValue) < 25) return "text-purple-400"; 
-    return formData.stanceValue < 0 ? "text-blue-400" : "text-red-400"; 
+    if (formData.stanceValue === 0) return "text-gray-400";
+    if (Math.abs(formData.stanceValue) < 25) return "text-purple-400";
+    return formData.stanceValue < 0 ? "text-blue-400" : "text-red-400";
   };
 
   return (
@@ -137,7 +144,36 @@ const CreateRoom = () => {
                 </p>
               )}
             </div>
-            
+
+            <div className="space-y-2">
+              <label className="block text-gray-300 mb-2">Type</label>
+              <div className="grid grid-cols-2 gap-4">
+                <button
+                  type="button"
+                  onClick={() => handleRoomTypeChange("text")}
+                  className={`flex items-center justify-center space-x-2 p-4 rounded-lg border transition-all ${
+                    formData.roomType === "text"
+                      ? "border-blue-500/50 bg-blue-500/10 text-blue-400"
+                      : "border-gray-700 bg-gray-900/50 text-gray-400 hover:bg-gray-800/50"
+                  }`}
+                >
+                  <MessageSquare size={20} />
+                  <span>Text</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleRoomTypeChange("voice")}
+                  className={`flex items-center justify-center space-x-2 p-4 rounded-lg border transition-all ${
+                    formData.roomType === "voice"
+                      ? "border-blue-500/50 bg-blue-500/10 text-blue-400"
+                      : "border-gray-700 bg-gray-900/50 text-gray-400 hover:bg-gray-800/50"
+                  }`}
+                >
+                  <Mic size={20} />
+                  <span>Voice</span>
+                </button>
+              </div>
+            </div>
 
             <div>
               <div className="flex justify-between mb-2">
