@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { Search, ArrowUpDown, Plus, Globe } from "lucide-react";
-import { useSocket } from "../app.jsx"; // or the file where the context is defined
-import { Link, useLocation } from "wouter"; // import Link and useLocation for client-side navigation
+import { useSocket } from "../app.jsx"; 
+import { Link, useLocation } from "wouter"; 
 
 const DisagreePlatform = () => {
-  const socket = useSocket(); // Access the shared socket
+  const socket = useSocket();
   const [allRooms, setAllRooms] = useState([]);
   const [rooms, setRooms] = useState([]);
   const [stats, setStats] = useState({
@@ -23,7 +23,7 @@ const DisagreePlatform = () => {
     open: false,
     centrist: false,
     text: false,
-    voice: false, // New filters
+    voice: false,
   });
   const [currentPage, setCurrentPage] = useState(1);
   const roomsPerPage = 5;
@@ -38,7 +38,7 @@ const DisagreePlatform = () => {
         const openRooms = data.filter(
           (room) => room.maxParticipants > room.participants
         );
-        setAllRooms(openRooms.sort((a, b) => a.participants - b.participants)); // Set all rooms
+        setAllRooms(openRooms.sort((a, b) => a.participants - b.participants));
         setRooms(openRooms.sort((a, b) => a.participants - b.participants));
       } catch (error) {
         console.error("Error fetching rooms:", error);
@@ -59,7 +59,6 @@ const DisagreePlatform = () => {
     fetchRooms();
     fetchStats();
 
-    // Clean up socket connection on component unmount
     return () => {};
   }, [socket]);
 

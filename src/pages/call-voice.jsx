@@ -28,8 +28,8 @@ const VoiceCallRoom = () => {
   }
 
   const getStanceBubbleColor = () => {
-    const percent = parseInt(percentage, 10); // Convert percentage to number
-    if (isNaN(percent)) return "bg-gray-700 text-gray-300"; // Default color if invalid
+    const percent = parseInt(percentage, 10);
+    if (isNaN(percent)) return "bg-gray-700 text-gray-300";
     if (Math.abs(percent) <= 25)
       return "bg-purple-500/20 text-purple-300 border-purple-500/30";
     return party === "Left"
@@ -58,7 +58,7 @@ const VoiceCallRoom = () => {
       const audio = document.createElement("audio");
       audio.srcObject = event.streams[0];
       audio.autoplay = true;
-      document.body.appendChild(audio); // Add remote audio to the UI
+      document.body.appendChild(audio);
     };
 
     return peerConnection;

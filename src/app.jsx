@@ -14,7 +14,7 @@ const SocketContext = createContext(null);
 export const useSocket = () => useContext(SocketContext);
 
 export default function App() {
-  const socketRef = useRef(io()); // Initialize immediately here
+  const socketRef = useRef(io());
 
   return (
     <SocketContext.Provider value={socketRef.current}>

@@ -12,7 +12,7 @@ export default defineConfig({
     port:3001,
     strictPort: true,
     hmr: {
-      clientPort: 443 // Run the websocket server on the SSL port
+      clientPort: 443
     }
   },  css: {
     postcss: {
