@@ -20,8 +20,7 @@ const DisagreePlatform = () => {
   const [filters, setFilters] = useState({
     right: false,
     left: false,
-    text: false,
-    voice: false,
+    open: false,
     centrist: false, // New Centrist filter
   });
   const [currentPage, setCurrentPage] = useState(1);
@@ -139,14 +138,12 @@ const fetchRooms = async () => {
             (room.stance.party === "Right" && room.stance.percentage <= 25);
         }
 
-        // Apply the text filter if selected
-        if (filters.text) {
+        // Apply the open filter if selected
+        if (filters.open) {
           matchesFilter =
-            matchesFilter && room.type === 'text';
-        } else if (filters.voice) {
-          matchesFilter =
-            matchesFilter && room.type === 'voice';
+            matchesFilter && room.maxParticipants > room.participants;
         }
+
         return matchesFilter;
       })
       .filter((room) =>
@@ -213,7 +210,7 @@ const fetchRooms = async () => {
 
       const { room: joinedRoom } = response;
       setLocation(
-        `/call-${room.type}?topic=${encodeURIComponent(joinedRoom.name)}&party=${encodeURIComponent(joinedRoom.stance.party)}&percentage=${encodeURIComponent(joinedRoom.stance.percentage)}&owner=false`
+        `/call?topic=${encodeURIComponent(joinedRoom.name)}&party=${encodeURIComponent(joinedRoom.stance.party)}&percentage=${encodeURIComponent(joinedRoom.stance.percentage)}&owner=false`
       );
     });
   };
@@ -338,21 +335,17 @@ const fetchRooms = async () => {
               </button>
               <button
                 className={`px-4 py-2 rounded-full text-sm font-medium ${
-                  filters.text
+                  filters.open
                     ? "bg-green-500/20 text-green-300 border border-green-500/30"
                     : "bg-gray-500/20 text-gray-400 border border-gray-500/30"
                 }`}
                 onClick={() => {
-                  const newFilters = {
-                    ...filters,
-                    text: !filters.text,
-                    voice: false,
-                  };
+                  const newFilters = { ...filters, open: !filters.open };
                   setFilters(newFilters);
                   applyFilters(searchTerm, newFilters);
                 }}
               >
-                Text
+                Open
               </button>
             </div>
           </div>
