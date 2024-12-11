@@ -88,17 +88,28 @@ const VoiceCallWaiting = () => {
   }, [messages]);
 
   useEffect(() => {
-    // Listen for the 'start-call' event from the server
-    socket.on('start-call', ({ room }) => {
-      setLocation(
-        `/call?topic=${encodeURIComponent(room.name)}&party=${encodeURIComponent(room.stance.party)}&percentage=${encodeURIComponent(room.stance.percentage)}&owner=true`
-      );
-    });
+  // Listen for the 'start-text-chat' and 'start-voice-call' events
+  socket.on('start-text-chat', ({ room }) => {
+    setLocation(
+      `/call-text?topic=${encodeURIComponent(room.name)}&party=${encodeURIComponent(
+        room.stance.party
+      )}&percentage=${encodeURIComponent(room.stance.percentage)}&owner=true`
+    );
+  });
 
-    return () => {
-      socket.off('start-call');
-    };
-  }, [socket, setLocation]);
+  socket.on('start-voice-call', ({ room }) => {
+    setLocation(
+      `/call-voice?topic=${encodeURIComponent(room.name)}&party=${encodeURIComponent(
+        room.stance.party
+      )}&percentage=${encodeURIComponent(room.stance.percentage)}&owner=true`
+    );
+  });
+
+  return () => {
+    socket.off('start-text-chat');
+    socket.off('start-voice-call');
+  };
+}, [socket, setLocation]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">

@@ -5,6 +5,7 @@ import About from "../pages/about.jsx";
 import Create from "../pages/create.jsx";
 import Waiting from "../pages/waiting.jsx";
 import VoiceCall from "../pages/call-voice.jsx";
+import TextCall from "../pages/call-text.jsx";
 
 /**
 * The router is imported in app.jsx
@@ -20,6 +21,7 @@ export default () => (
       <Route path="/about" component={About} />
       <Route path="/create" component={Create} />
       <Route path="/waiting" component={Waiting} />
-      <Route path="/call" component={Call} />
+      <Route path="/call-voice" component={VoiceCall} />
+      <Route path="/call-text" component={TextCall} />
     </Switch>
 );

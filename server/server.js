@@ -114,6 +114,20 @@ io.on('connection', (socket) => {
 });
   
   
+// Handle messaging in text rooms
+socket.on('message', (data) => {
+  const userInfo = socketToRoom[socket.id];
+  if (!userInfo) return; // User is not in a room
+
+  const { roomId } = userInfo;
+  const room = rooms.find((r) => r.id === roomId);
+  if (!room || room.type !== 'text') return; // Ensure the room exists and is a text room
+
+  // Broadcast the message to the room
+  io.to(`room-${roomId}`).emit('message', { ...data, sender: socket.id });
+});
+
+  
 // Handle "new-partner" request
 socket.on('new-partner', (callback) => {
   const userInfo = socketToRoom[socket.id];
