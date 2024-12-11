@@ -19,9 +19,9 @@ const TextCallRoom = () => {
     if (!socket) return;
 
     // Listen for incoming messages from other users
-  socket.on("message", (message) => {
-    setMessages((prev) => [...prev, { ...message, self: false }]);
-  });
+    socket.on("message", (message) => {
+      setMessages((prev) => [...prev, { ...message, self: false }]);
+    });
 
     // Handle redirects for "new-partner" or disconnection scenarios
     socket.on("redirect-home", () => {
@@ -30,9 +30,11 @@ const TextCallRoom = () => {
 
     socket.on("redirect-waiting", ({ room }) => {
       setLocation(
-        `/waiting?topic=${encodeURIComponent(room.name)}&party=${encodeURIComponent(
-          room.stance.party
-        )}&percentage=${room.stance.percentage}`
+        `/waiting?topic=${encodeURIComponent(
+          room.name
+        )}&party=${encodeURIComponent(room.stance.party)}&percentage=${
+          room.stance.percentage
+        }`
       );
     });
 
@@ -43,17 +45,17 @@ const TextCallRoom = () => {
     };
   }, [socket, setLocation]);
 
-const sendMessage = () => {
-  if (newMessage.trim()) {
-    const message = { text: newMessage, timestamp: Date.now(), self: true };
-    // Emit the message to the server
-    socket.emit("message", { text: newMessage, timestamp: Date.now() });
-    // Add the message locally
-    setMessages((prev) => [...prev, message]);
-    setNewMessage(""); // Clear the input field
-  }
-};
-  
+  const sendMessage = () => {
+    if (newMessage.trim()) {
+      const message = { text: newMessage, timestamp: Date.now(), self: true };
+      // Emit the message to the server
+      socket.emit("message", { text: newMessage, timestamp: Date.now() });
+      // Add the message locally
+      setMessages((prev) => [...prev, message]);
+      setNewMessage(""); // Clear the input field
+    }
+  };
+
   const handleNewPartner = () => {
     if (!socket) return;
 
@@ -112,19 +114,17 @@ const sendMessage = () => {
         {/* Chat Section */}
         <div className="bg-gray-800/50 backdrop-blur-sm rounded-lg border border-gray-700 p-6">
           <div className="h-64 overflow-y-auto bg-gray-900/50 rounded-lg p-4 mb-4">
-  {messages.map((msg, idx) => (
-    <div
-      key={idx}
-      className={`mb-2 ${msg.self ? "text-right" : "text-left"}`}
-    >
-      <span
-        className="inline-block px-3 py-1 rounded-lg text-sm font-medium bg-gray-700 text-gray-300"
-      >
-        {msg.text}
-      </span>
-    </div>
-  ))}
-</div>
+            {messages.map((msg, idx) => (
+              <div
+                key={idx}
+                className={`mb-2 ${msg.self ? "text-right" : "text-left"}`}
+              >
+                <span className="inline-block px-3 py-1 rounded-lg text-sm font-medium bg-gray-700 text-gray-300">
+                  {msg.text}
+                </span>
+              </div>
+            ))}
+          </div>
           <div className="flex">
             <input
               type="text"

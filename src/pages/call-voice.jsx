@@ -7,7 +7,7 @@ const VoiceCallRoom = () => {
   // Extract query params from URL
   const socket = useSocket();
   const [location, setLocation] = useLocation();
-   const [peers, setPeers] = useState({});
+  const [peers, setPeers] = useState({});
   const localStreamRef = useRef(null);
 
   const searchParams = new URLSearchParams(window.location.search);
@@ -17,23 +17,37 @@ const VoiceCallRoom = () => {
   const isOwner = searchParams.get("owner") === "true";
 
   // Determine grid width based on initial screen size
-  const [gridWidth, setGridWidth] = useState(() => (window.innerWidth < 500 ? 8 : 12));
+  const [gridWidth, setGridWidth] = useState(() =>
+    window.innerWidth < 500 ? 8 : 12
+  );
   const gridHeight = 4;
 
   function getRandomColor() {
     const colors = ["blue", "red", "purple"];
     return colors[Math.floor(Math.random() * colors.length)];
   }
-  
-   const createPeerConnection = (userId) => {
+
+  const getStanceBubbleColor = () => {
+    const percent = parseInt(percentage, 10); // Convert percentage to number
+    if (isNaN(percent)) return "bg-gray-700 text-gray-300"; // Default color if invalid
+    if (Math.abs(percent) <= 24)
+      return "bg-purple-500/20 text-purple-300 border-purple-500/30";
+    return party === "Left"
+      ? "bg-blue-500/20 text-blue-300 border-blue-500/30"
+      : "bg-red-500/20 text-red-300 border-red-500/30";
+  };
+
+  const createPeerConnection = (userId) => {
     const peerConnection = new RTCPeerConnection();
-    localStreamRef.current.getTracks().forEach((track) =>
-      peerConnection.addTrack(track, localStreamRef.current)
-    );
+    localStreamRef.current
+      .getTracks()
+      .forEach((track) =>
+        peerConnection.addTrack(track, localStreamRef.current)
+      );
 
     peerConnection.onicecandidate = (event) => {
       if (event.candidate) {
-        socket.emit('signal', {
+        socket.emit("signal", {
           target: userId,
           description: event.candidate,
         });
@@ -41,7 +55,7 @@ const VoiceCallRoom = () => {
     };
 
     peerConnection.ontrack = (event) => {
-      const audio = document.createElement('audio');
+      const audio = document.createElement("audio");
       audio.srcObject = event.streams[0];
       audio.autoplay = true;
       document.body.appendChild(audio); // Add remote audio to the UI
@@ -58,66 +72,68 @@ const VoiceCallRoom = () => {
         color: getRandomColor(),
       }))
   );
-  
-   useEffect(() => {
-  // Request microphone access and handle stream
-  const getMedia = async () => {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      localStreamRef.current = stream;
-      const audio = document.createElement('audio');
-      audio.srcObject = stream;
-      audio.autoplay = true;
-      document.body.appendChild(audio); // Add local audio to the UI
-    } catch (error) {
-      console.error('Error accessing media devices:', error);
-      alert('Microphone access is required to join the call.');
-    }
-  };
 
-  getMedia();
+  useEffect(() => {
+    // Request microphone access and handle stream
+    const getMedia = async () => {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({
+          audio: true,
+        });
+        localStreamRef.current = stream;
+        const audio = document.createElement("audio");
+        audio.srcObject = stream;
+        audio.autoplay = true;
+        document.body.appendChild(audio); // Add local audio to the UI
+      } catch (error) {
+        console.error("Error accessing media devices:", error);
+        alert("Microphone access is required to join the call.");
+      }
+    };
 
-  // Handle incoming WebRTC signals
-  socket.on('signal', async ({ sender, description }) => {
-    let peerConnection = peers[sender];
-    if (!peerConnection) {
-      peerConnection = createPeerConnection(sender);
-      setPeers((prev) => ({ ...prev, [sender]: peerConnection }));
-    }
+    getMedia();
 
-    if (description.type === 'offer') {
-      await peerConnection.setRemoteDescription(description);
-      const answer = await peerConnection.createAnswer();
-      await peerConnection.setLocalDescription(answer);
-      socket.emit('signal', {
-        target: sender,
-        description: peerConnection.localDescription,
-      });
-    } else if (description.type === 'answer') {
-      await peerConnection.setRemoteDescription(description);
-    } else if (description.candidate) {
-      await peerConnection.addIceCandidate(description);
-    }
-  });
+    // Handle incoming WebRTC signals
+    socket.on("signal", async ({ sender, description }) => {
+      let peerConnection = peers[sender];
+      if (!peerConnection) {
+        peerConnection = createPeerConnection(sender);
+        setPeers((prev) => ({ ...prev, [sender]: peerConnection }));
+      }
 
-  // Clean up on component unmount
-  return () => {
-    socket.off('signal');
-    
-    // Stop and close all peer connections
-    Object.values(peers).forEach((peer) => {
-      peer.getSenders().forEach((sender) => sender.track.stop()); // Stop all tracks
-      peer.close();
+      if (description.type === "offer") {
+        await peerConnection.setRemoteDescription(description);
+        const answer = await peerConnection.createAnswer();
+        await peerConnection.setLocalDescription(answer);
+        socket.emit("signal", {
+          target: sender,
+          description: peerConnection.localDescription,
+        });
+      } else if (description.type === "answer") {
+        await peerConnection.setRemoteDescription(description);
+      } else if (description.candidate) {
+        await peerConnection.addIceCandidate(description);
+      }
     });
-    setPeers({});
-    
-    // Stop local media stream
-    if (localStreamRef.current) {
-      localStreamRef.current.getTracks().forEach((track) => track.stop());
-      localStreamRef.current = null;
-    }
-  };
-}, [socket, peers]);
+
+    // Clean up on component unmount
+    return () => {
+      socket.off("signal");
+
+      // Stop and close all peer connections
+      Object.values(peers).forEach((peer) => {
+        peer.getSenders().forEach((sender) => sender.track.stop()); // Stop all tracks
+        peer.close();
+      });
+      setPeers({});
+
+      // Stop local media stream
+      if (localStreamRef.current) {
+        localStreamRef.current.getTracks().forEach((track) => track.stop());
+        localStreamRef.current = null;
+      }
+    };
+  }, [socket, peers]);
 
   useEffect(() => {
     const handleResize = () => {
@@ -174,9 +190,11 @@ const VoiceCallRoom = () => {
     const handleRedirectWaiting = ({ room }) => {
       // Send owner back to waiting with room info
       setLocation(
-        `/waiting?topic=${encodeURIComponent(room.name)}&party=${encodeURIComponent(
-          room.stance.party
-        )}&percentage=${room.stance.percentage}`
+        `/waiting?topic=${encodeURIComponent(
+          room.name
+        )}&party=${encodeURIComponent(room.stance.party)}&percentage=${
+          room.stance.percentage
+        }`
       );
     };
 
@@ -196,9 +214,9 @@ const VoiceCallRoom = () => {
       if (response.success) {
         // Owner gets redirected to the waiting page with room info
         setLocation(
-          `/waiting?topic=${encodeURIComponent(topic)}&party=${encodeURIComponent(
-            party
-          )}&percentage=${percentage}`
+          `/waiting?topic=${encodeURIComponent(
+            topic
+          )}&party=${encodeURIComponent(party)}&percentage=${percentage}`
         );
       } else {
         console.error("Failed to handle new partner action.");
@@ -258,7 +276,9 @@ const VoiceCallRoom = () => {
           <h2 className="text-xl font-semibold text-gray-100">{topic}</h2>
           {party && percentage && (
             <div className="flex justify-between mt-2">
-              <span className="px-3 py-1 rounded-full text-sm font-medium bg-blue-500/20 text-blue-300 border border-blue-500/30">
+              <span
+                className={`px-3 py-1 rounded-full text-sm font-medium border ${getStanceBubbleColor()}`}
+              >
                 {percentage}% {party}
               </span>
             </div>
@@ -268,7 +288,11 @@ const VoiceCallRoom = () => {
         {/* Digital Random Grid Visualizer */}
         <div className="bg-gray-800/50 backdrop-blur-sm rounded-lg border border-gray-700 p-8">
           <div className="h-48 bg-gray-900/50 rounded-lg flex items-center justify-center">
-            <div className={`grid ${gridWidth === 8 ? "grid-cols-8" : "grid-cols-12"} gap-2`}>
+            <div
+              className={`grid ${
+                gridWidth === 8 ? "grid-cols-8" : "grid-cols-12"
+              } gap-2`}
+            >
               {gridData.map((square, index) => (
                 <div
                   key={index}

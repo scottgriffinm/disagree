@@ -4,9 +4,11 @@ import { useLocation } from "wouter";
 import { useSocket } from "../app.jsx";
 
 const VoiceCallWaiting = () => {
-  const socket = useSocket();  
+  const socket = useSocket();
   const [dots, setDots] = useState(Array(8).fill(false));
-  const [currentMessage, setCurrentMessage] = useState("Waiting for a partner to join...");
+  const [currentMessage, setCurrentMessage] = useState(
+    "Waiting for a partner to join..."
+  );
   const [fade, setFade] = useState(true);
 
   // Extract query params from URL
@@ -14,7 +16,7 @@ const VoiceCallWaiting = () => {
   const topic = searchParams.get("topic") || "Waiting for a topic...";
   const party = searchParams.get("party");
   const percentage = searchParams.get("percentage");
-  const stanceText = (party && percentage) ? `${percentage}% ${party}` : "";
+  const stanceText = party && percentage ? `${percentage}% ${party}` : "";
 
   const [location, setLocation] = useLocation();
 
@@ -50,6 +52,16 @@ const VoiceCallWaiting = () => {
     '"It is never too late to give up your prejudices."',
     '"The more I see, the less I know for sure."',
   ];
+
+  const getStanceBubbleColor = () => {
+    const percent = parseInt(percentage, 10); // Convert percentage to number
+    if (isNaN(percent)) return "bg-gray-700 text-gray-300"; // Default color if invalid
+    if (Math.abs(percent) <= 24)
+      return "bg-purple-500/20 text-purple-300 border-purple-500/30";
+    return party === "Left"
+      ? "bg-blue-500/20 text-blue-300 border-blue-500/30"
+      : "bg-red-500/20 text-red-300 border-red-500/30";
+  };
 
   useEffect(() => {
     // Animate the loading dots
@@ -88,28 +100,32 @@ const VoiceCallWaiting = () => {
   }, [messages]);
 
   useEffect(() => {
-  // Listen for the 'start-text-chat' and 'start-voice-call' events
-  socket.on('start-text-chat', ({ room }) => {
-    setLocation(
-      `/call-text?topic=${encodeURIComponent(room.name)}&party=${encodeURIComponent(
-        room.stance.party
-      )}&percentage=${encodeURIComponent(room.stance.percentage)}&owner=true`
-    );
-  });
+    // Listen for the 'start-text-chat' and 'start-voice-call' events
+    socket.on("start-text-chat", ({ room }) => {
+      setLocation(
+        `/call-text?topic=${encodeURIComponent(
+          room.name
+        )}&party=${encodeURIComponent(
+          room.stance.party
+        )}&percentage=${encodeURIComponent(room.stance.percentage)}&owner=true`
+      );
+    });
 
-  socket.on('start-voice-call', ({ room }) => {
-    setLocation(
-      `/call-voice?topic=${encodeURIComponent(room.name)}&party=${encodeURIComponent(
-        room.stance.party
-      )}&percentage=${encodeURIComponent(room.stance.percentage)}&owner=true`
-    );
-  });
+    socket.on("start-voice-call", ({ room }) => {
+      setLocation(
+        `/call-voice?topic=${encodeURIComponent(
+          room.name
+        )}&party=${encodeURIComponent(
+          room.stance.party
+        )}&percentage=${encodeURIComponent(room.stance.percentage)}&owner=true`
+      );
+    });
 
-  return () => {
-    socket.off('start-text-chat');
-    socket.off('start-voice-call');
-  };
-}, [socket, setLocation]);
+    return () => {
+      socket.off("start-text-chat");
+      socket.off("start-voice-call");
+    };
+  }, [socket, setLocation]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
@@ -138,7 +154,9 @@ const VoiceCallWaiting = () => {
           <h2 className="text-xl font-semibold text-gray-100">{topic}</h2>
           {stanceText && (
             <div className="flex justify-between mt-2">
-              <span className="px-3 py-1 rounded-full text-sm font-medium bg-blue-500/20 text-blue-300 border border-blue-500/30">
+              <span
+                className={`px-3 py-1 rounded-full text-sm font-medium border ${getStanceBubbleColor()}`}
+              >
                 {stanceText}
               </span>
             </div>
