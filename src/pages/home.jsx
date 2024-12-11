@@ -21,25 +21,29 @@ const DisagreePlatform = () => {
     right: false,
     left: false,
     open: false,
-    centrist: false, // New Centrist filter
+    centrist: false,
+    text: false,
+    voice: false, // New filters
   });
   const [currentPage, setCurrentPage] = useState(1);
   const roomsPerPage = 5;
   const [location, setLocation] = useLocation();
 
   useEffect(() => {
-const fetchRooms = async () => {
-  try {
-    const response = await fetch("/api/rooms");
-    const data = await response.json();
-    // Filter out full rooms
-    const openRooms = data.filter((room) => room.maxParticipants > room.participants);
-    setAllRooms(openRooms.sort((a, b) => a.participants - b.participants)); // Set all rooms
-    setRooms(openRooms.sort((a, b) => a.participants - b.participants));
-  } catch (error) {
-    console.error("Error fetching rooms:", error);
-  }
-};
+    const fetchRooms = async () => {
+      try {
+        const response = await fetch("/api/rooms");
+        const data = await response.json();
+        // Filter out full rooms
+        const openRooms = data.filter(
+          (room) => room.maxParticipants > room.participants
+        );
+        setAllRooms(openRooms.sort((a, b) => a.participants - b.participants)); // Set all rooms
+        setRooms(openRooms.sort((a, b) => a.participants - b.participants));
+      } catch (error) {
+        console.error("Error fetching rooms:", error);
+      }
+    };
 
     const fetchStats = async () => {
       try {
@@ -98,6 +102,12 @@ const fetchRooms = async () => {
         return direction === "asc" ? aScore - bScore : bScore - aScore;
       }
 
+      if (key === "type") {
+        return direction === "asc"
+          ? a.type.localeCompare(b.type)
+          : b.type.localeCompare(a.type);
+      }
+
       if (a[key] < b[key]) return direction === "asc" ? -1 : 1;
       if (a[key] > b[key]) return direction === "asc" ? 1 : -1;
       return 0;
@@ -137,12 +147,14 @@ const fetchRooms = async () => {
             (room.stance.party === "Left" && room.stance.percentage <= 25) ||
             (room.stance.party === "Right" && room.stance.percentage <= 25);
         }
+        
+        if (filters.text) {
+  matchesFilter = matchesFilter && room.type === "text";
+}
 
-        // Apply the open filter if selected
-        if (filters.open) {
-          matchesFilter =
-            matchesFilter && room.maxParticipants > room.participants;
-        }
+if (filters.voice) {
+  matchesFilter = matchesFilter && room.type === "voice";
+}
 
         return matchesFilter;
       })
@@ -202,7 +214,7 @@ const fetchRooms = async () => {
   };
 
   const handleJoinRoom = (room) => {
-    socket.emit('join-room', room.id, (response) => {
+    socket.emit("join-room", room.id, (response) => {
       if (response.error) {
         console.error("Failed to join room:", response.error);
         return;
@@ -210,7 +222,13 @@ const fetchRooms = async () => {
 
       const { room: joinedRoom } = response;
       setLocation(
-        `/call?topic=${encodeURIComponent(joinedRoom.name)}&party=${encodeURIComponent(joinedRoom.stance.party)}&percentage=${encodeURIComponent(joinedRoom.stance.percentage)}&owner=false`
+        `/call?topic=${encodeURIComponent(
+          joinedRoom.name
+        )}&party=${encodeURIComponent(
+          joinedRoom.stance.party
+        )}&percentage=${encodeURIComponent(
+          joinedRoom.stance.percentage
+        )}&owner=false`
       );
     });
   };
@@ -335,150 +353,180 @@ const fetchRooms = async () => {
               </button>
               <button
                 className={`px-4 py-2 rounded-full text-sm font-medium ${
-                  filters.open
+                  filters.text
                     ? "bg-green-500/20 text-green-300 border border-green-500/30"
                     : "bg-gray-500/20 text-gray-400 border border-gray-500/30"
                 }`}
                 onClick={() => {
-                  const newFilters = { ...filters, open: !filters.open };
+                  const newFilters = {
+                    ...filters,
+                    text: !filters.text,
+                    voice: false,
+                  };
                   setFilters(newFilters);
                   applyFilters(searchTerm, newFilters);
                 }}
               >
-                Open
+                Text
+              </button>
+              <button
+                className={`px-4 py-2 rounded-full text-sm font-medium ${
+                  filters.voice
+                    ? "bg-yellow-500/20 text-yellow-300 border border-yellow-500/30"
+                    : "bg-gray-500/20 text-gray-400 border border-gray-500/30"
+                }`}
+                onClick={() => {
+                  const newFilters = {
+                    ...filters,
+                    voice: !filters.voice,
+                    text: false,
+                  };
+                  setFilters(newFilters);
+                  applyFilters(searchTerm, newFilters);
+                }}
+              >
+                Voice
               </button>
             </div>
           </div>
         </div>
 
-      {/* Table Section */}
-<div className="bg-gray-800/50 backdrop-blur-sm rounded-lg shadow-xl border border-gray-700 mt-4 overflow-hidden">
-  <div className="overflow-x-auto">
-    {rooms.length === 0 ? (
-      // Display a message when no rooms are available
-    <div className="flex items-center justify-center py-12">
-  <p className="text-gray-400 text-center text-sm sm:text-base md:text-lg font-medium leading-tight max-w-xs sm:max-w-md md:max-w-lg lg:max-w-none mx-auto">
-    No rooms available, please refresh or create your own.
-  </p>
-</div>
-    ) : (
-      <table className="w-full">
-        <thead>
-          <tr className="bg-gray-900/50">
-            <th
-              className="px-6 py-4 text-left cursor-pointer hover:bg-gray-700/50 transition-colors w-1/5"
-              onClick={() => handleSort("name")}
-            >
-              <div className="flex items-center space-x-2">
-                <span className="text-gray-300 font-medium">Room</span>
-                <ArrowUpDown size={16} className="text-gray-500" />
+        {/* Table Section */}
+        <div className="bg-gray-800/50 backdrop-blur-sm rounded-lg shadow-xl border border-gray-700 mt-4 overflow-hidden">
+          <div className="overflow-x-auto">
+            {rooms.length === 0 ? (
+              // Display a message when no rooms are available
+              <div className="flex items-center justify-center py-12">
+                <p className="text-gray-400 text-center text-sm sm:text-base md:text-lg font-medium leading-tight max-w-xs sm:max-w-md md:max-w-lg lg:max-w-none mx-auto">
+                  No rooms available, please refresh or create your own.
+                </p>
               </div>
-            </th>
-            <th
-              className="px-3 py-4 text-left cursor-pointer hover:bg-gray-700/50 transition-colors w-1/5"
-              onClick={() => handleSort("participants")}
-            >
-              <div className="flex items-center space-x-2">
-                <span className="text-gray-300 font-medium">Status</span>
-                <ArrowUpDown size={16} className="text-gray-500" />
-              </div>
-            </th>
-            <th
-              className="px-7 py-4 text-left cursor-pointer hover:bg-gray-700/50 transition-colors w-1/5"
-              onClick={() => handleSort("stance")}
-            >
-              <div className="flex items-center justify-center space-x-2 -ml-10">
-                <span className="text-gray-300 font-medium">Stance</span>
-                <ArrowUpDown size={16} className="text-gray-500" />
-              </div>
-            </th>
-            <th
-              className="px-5 py-4 text-left cursor-pointer hover:bg-gray-700/50 transition-colors w-1/5"
-              onClick={() => handleSort("created")}
-            >
-              <div className="flex items-center space-x-2">
-                <span className="text-gray-300 font-medium">Created</span>
-                <ArrowUpDown size={16} className="text-gray-500" />
-              </div>
-            </th>
-            <th className="px-3 py-4 text-right w-1/5">
-              <span className="text-gray-300 font-medium"></span>
-            </th>
-          </tr>
-        </thead>
-        <tbody className="divide-y divide-gray-700/50">
-          {paginatedRooms.map((room) => (
-            <tr
-              key={room.id}
-              className="hover:bg-gray-700/30 transition-colors duration-200"
-            >
-              <td className="px-4 py-4 w-1/5">
-                <div className="flex items-center space-x-3">
-                  <div
-                    className={`w-2 h-2 rounded-full ${
-                      !isRoomOpen(room)
-                        ? "bg-gray-400"
-                        : room.stance.percentage <= 25
-                        ? "bg-purple-400"
-                        : room.stance.party === "Right"
-                        ? "bg-red-400"
-                        : "bg-blue-400"
-                    }`}
-                  />
-                  <span className="text-gray-100 font-medium">
-                    {room.name}
-                  </span>
-                </div>
-              </td>
-              <td className="px-2 py-4 text-center w-1/5">
-                <span
-                  className={`px-3 py-1 rounded-full text-xs font-medium w-24 flex justify-center items-center bg-gray-500/20 text-gray-400 border border-gray-500/30`}
-                >
-                  {isRoomOpen(room) ? "Open" : "Full"}
-                </span>
-              </td>
-              <td className="px-6 py-4 text-center w-1/5">
-                <span
-                  className={`px-3 py-1 rounded-full text-xs font-medium w-32 inline-block text-center ${
-                    room.stance.percentage <= 25
-                      ? "bg-purple-500/20 text-purple-300 border border-purple-500/30"
-                      : room.stance.party === "Left"
-                      ? "bg-blue-500/20 text-blue-300 border border-blue-500/30"
-                      : "bg-red-500/20 text-red-300 border border-red-500/30"
-                  }`}
-                >
-                  {room.stance.percentage}% {room.stance.party}
-                </span>
-              </td>
-              <td className="px-6 py-4 w-1/5">
-                <span className="text-gray-400">
-                  {formatTimeAgo(room.created)}
-                </span>
-              </td>
-              <td className="px-6 py-4 text-right w-1/5">
-                <button
-                  className={`flex items-center justify-center space-x-2 px-6 py-2 w-28 rounded-lg transition-all ${
-                    isRoomOpen(room)
-                      ? "bg-gray-800/50 text-gray-300 border border-gray-700 hover:bg-gray-700/50"
-                      : "bg-gray-700 text-gray-400 cursor-not-allowed"
-                  }`}
-                  disabled={!isRoomOpen(room)}
-                  onClick={() => {
-                    if (isRoomOpen(room)) {
-                      handleJoinRoom(room);
-                    }
-                  }}
-                >
-                  <span>{isRoomOpen(room) ? "Join" : "Full"}</span>
-                </button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    )}
-  </div>
-</div>
+            ) : (
+              <table className="w-full">
+                <thead>
+                  <tr className="bg-gray-900/50">
+                    <th
+                      className="px-6 py-4 text-left cursor-pointer hover:bg-gray-700/50 transition-colors w-1/5"
+                      onClick={() => handleSort("name")}
+                    >
+                      <div className="flex items-center space-x-2">
+                        <span className="text-gray-300 font-medium">Room</span>
+                        <ArrowUpDown size={16} className="text-gray-500" />
+                      </div>
+                    </th>
+                    <th
+                      className="px-6 py-4 text-left cursor-pointer hover:bg-gray-700/50 transition-colors w-1/5"
+                      onClick={() => handleSort("type")}
+                    >
+                      <div className="flex items-center space-x-2">
+                        <span className="text-gray-300 font-medium">Type</span>
+                        <ArrowUpDown size={16} className="text-gray-500" />
+                      </div>
+                    </th>
+                    <th
+                      className="px-7 py-4 text-left cursor-pointer hover:bg-gray-700/50 transition-colors w-1/5"
+                      onClick={() => handleSort("stance")}
+                    >
+                      <div className="flex items-center justify-center space-x-2 -ml-10">
+                        <span className="text-gray-300 font-medium">
+                          Stance
+                        </span>
+                        <ArrowUpDown size={16} className="text-gray-500" />
+                      </div>
+                    </th>
+                    <th
+                      className="px-5 py-4 text-left cursor-pointer hover:bg-gray-700/50 transition-colors w-1/5"
+                      onClick={() => handleSort("created")}
+                    >
+                      <div className="flex items-center space-x-2">
+                        <span className="text-gray-300 font-medium">
+                          Created
+                        </span>
+                        <ArrowUpDown size={16} className="text-gray-500" />
+                      </div>
+                    </th>
+                    <th className="px-3 py-4 text-right w-1/5">
+                      <span className="text-gray-300 font-medium"></span>
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-700/50">
+                  {paginatedRooms.map((room) => (
+                    <tr
+                      key={room.id}
+                      className="hover:bg-gray-700/30 transition-colors duration-200"
+                    >
+                      <td className="px-4 py-4 w-1/5">
+                        <div className="flex items-center space-x-3">
+                          <div
+                            className={`w-2 h-2 rounded-full ${
+                              !isRoomOpen(room)
+                                ? "bg-gray-400"
+                                : room.stance.percentage <= 25
+                                ? "bg-purple-400"
+                                : room.stance.party === "Right"
+                                ? "bg-red-400"
+                                : "bg-blue-400"
+                            }`}
+                          />
+                          <span className="text-gray-100 font-medium">
+                            {room.name}
+                          </span>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 text-center w-1/5">
+                        <span
+                          className={`px-3 py-1 rounded-full text-xs font-medium w-24 flex justify-center items-center ${
+                            room.type === "text"
+                              ? "bg-green-500/20 text-green-300 border border-green-500/30"
+                              : "bg-yellow-500/20 text-yellow-300 border border-yellow-500/30"
+                          }`}
+                        >
+                          {room.type === "text" ? "Text" : "Voice"}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 text-center w-1/5">
+                        <span
+                          className={`px-3 py-1 rounded-full text-xs font-medium w-32 inline-block text-center ${
+                            room.stance.percentage <= 25
+                              ? "bg-purple-500/20 text-purple-300 border border-purple-500/30"
+                              : room.stance.party === "Left"
+                              ? "bg-blue-500/20 text-blue-300 border border-blue-500/30"
+                              : "bg-red-500/20 text-red-300 border border-red-500/30"
+                          }`}
+                        >
+                          {room.stance.percentage}% {room.stance.party}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 w-1/5">
+                        <span className="text-gray-400">
+                          {formatTimeAgo(room.created)}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 text-right w-1/5">
+                        <button
+                          className={`flex items-center justify-center space-x-2 px-6 py-2 w-28 rounded-lg transition-all ${
+                            isRoomOpen(room)
+                              ? "bg-gray-800/50 text-gray-300 border border-gray-700 hover:bg-gray-700/50"
+                              : "bg-gray-700 text-gray-400 cursor-not-allowed"
+                          }`}
+                          disabled={!isRoomOpen(room)}
+                          onClick={() => {
+                            if (isRoomOpen(room)) {
+                              handleJoinRoom(room);
+                            }
+                          }}
+                        >
+                          <span>{isRoomOpen(room) ? "Join" : "Full"}</span>
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+          </div>
+        </div>
 
         {/* Pagination */}
         <div className="flex justify-center mt-4">
