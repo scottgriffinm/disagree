@@ -88,31 +88,33 @@ io.on('connection', (socket) => {
   socket.on('join-room', (roomId, callback) => {
     const room = rooms.find((r) => r.id === parseInt(roomId));
     if (!room) {
-      if (callback) callback({ error: "Room not found" });
-      return;
+        if (callback) callback({ error: "Room not found" });
+        return;
     }
 
     if (room.participants >= room.maxParticipants) {
-      if (callback) callback({ error: "Room is full" });
-      return;
+        if (callback) callback({ error: "Room is full" });
+        return;
     }
 
     socket.join(`room-${room.id}`);
     room.participants += 1;
 
-    // This user is not the owner
     socketToRoom[socket.id] = { roomId: room.id, isOwner: false };
 
-    // If second participant joined, start the call immediately
     if (room.participants === room.maxParticipants) {
-      io.to(`room-${room.id}`).emit('start-call', { room });
+        const roomType = room.type; // Determine if 'text' or 'voice'
+        io.to(`room-${room.id}`).emit(
+            roomType === 'text' ? 'start-text-chat' : 'start-voice-call',
+            { room }
+        );
     }
 
     if (callback) callback({ room });
-  });
+});
   
   
-  // Handle "new-partner" request
+// Handle "new-partner" request
 socket.on('new-partner', (callback) => {
   const userInfo = socketToRoom[socket.id];
   if (!userInfo) return; // User is not in a room
@@ -178,7 +180,7 @@ socket.on('new-partner', (callback) => {
       // A participant (not owner) left:
       // Send the owner (if still connected) back to waiting
       const ownerSocketId = room.roomCreator;
-      // Emit only if the owner is still connected
+      // Emit only if the owner is satill connected
       // Check if the owner is connected. The owner should be in socketToRoom if still online
       if (io.sockets.sockets.get(ownerSocketId)) {
         io.to(ownerSocketId).emit('redirect-waiting', { room });

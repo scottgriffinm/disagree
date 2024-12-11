@@ -222,7 +222,7 @@ if (filters.voice) {
 
       const { room: joinedRoom } = response;
       setLocation(
-        `/call-?topic=${encodeURIComponent(
+        `/call-${room.type}?topic=${encodeURIComponent(
           joinedRoom.name
         )}&party=${encodeURIComponent(
           joinedRoom.stance.party

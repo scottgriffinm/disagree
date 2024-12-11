@@ -4,7 +4,7 @@ import Home from "../pages/home.jsx";
 import About from "../pages/about.jsx";
 import Create from "../pages/create.jsx";
 import Waiting from "../pages/waiting.jsx";
-import Call from "../pages/call.jsx";
+import VoiceCall from "../pages/call-voice.jsx";
 
 /**
 * The router is imported in app.jsx
