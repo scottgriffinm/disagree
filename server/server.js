@@ -66,6 +66,7 @@ io.on('connection', (socket) => {
       id: rooms.length + 1,
       name,
       stance,
+      type,
       participants: 1,
       maxParticipants: 2,
       created: new Date().toISOString(),
