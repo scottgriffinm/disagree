@@ -124,7 +124,7 @@ socket.on('message', (data) => {
   if (!room || room.type !== 'text') return; // Ensure the room exists and is a text room
 
   // Broadcast the message to the room
-  io.to(`room-${roomId}`).emit('message', { ...data, sender: socket.id });
+  socket.to(`room-${roomId}`).emit('message', { ...data, sender: socket.id });
 });
 
   
