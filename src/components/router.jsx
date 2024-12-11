@@ -1,7 +1,6 @@
 import * as React from "react";
 import { Switch, Route, Router } from "wouter";
 import Home from "../pages/home.jsx";
-import About from "../pages/about.jsx";
 import Create from "../pages/create.jsx";
 import Waiting from "../pages/waiting.jsx";
 import VoiceCall from "../pages/call-voice.jsx";
@@ -18,7 +17,6 @@ import TextCall from "../pages/call-text.jsx";
 export default () => (
     <Switch>
       <Route path="/" component={Home} />
-      <Route path="/about" component={About} />
       <Route path="/create" component={Create} />
       <Route path="/waiting" component={Waiting} />
       <Route path="/call-voice" component={VoiceCall} />

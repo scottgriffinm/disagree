@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Globe, ArrowLeft, UserX } from "lucide-react";
+import { Globe, ArrowLeft, UserX, Send } from "lucide-react";
 import { useSocket } from "../app.jsx";
 import { useLocation } from "wouter";
 
@@ -18,12 +18,10 @@ const TextCallRoom = () => {
   useEffect(() => {
     if (!socket) return;
 
-    // Listen for incoming messages from other users
     socket.on("message", (message) => {
       setMessages((prev) => [...prev, { ...message, self: false }]);
     });
 
-    // Handle redirects for "new-partner" or disconnection scenarios
     socket.on("redirect-home", () => {
       setLocation("/");
     });
@@ -48,27 +46,31 @@ const TextCallRoom = () => {
   const sendMessage = () => {
     if (newMessage.trim()) {
       const message = { text: newMessage, timestamp: Date.now(), self: true };
-      // Emit the message to the server
       socket.emit("message", { text: newMessage, timestamp: Date.now() });
-      // Add the message locally
       setMessages((prev) => [...prev, message]);
-      setNewMessage(""); // Clear the input field
+      setNewMessage("");
+    }
+  };
+
+  const handleKeyPress = (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage();
     }
   };
 
   const getStanceBubbleColor = () => {
-    const percent = parseInt(percentage, 10); // Convert percentage to number
-    if (isNaN(percent)) return "bg-gray-700 text-gray-300"; // Default color if invalid
+    const percent = parseInt(percentage, 10);
+    if (isNaN(percent)) return "bg-gray-800 text-gray-300 border-gray-700";
     if (Math.abs(percent) <= 25)
-      return "bg-purple-500/20 text-purple-300 border-purple-500/30";
+      return "bg-purple-500/10 text-purple-300 border-purple-500/30";
     return party === "Left"
-      ? "bg-blue-500/20 text-blue-300 border-blue-500/30"
-      : "bg-red-500/20 text-red-300 border-red-500/30";
+      ? "bg-blue-500/10 text-blue-300 border-blue-500/30"
+      : "bg-red-500/10 text-red-300 border-red-500/30";
   };
 
   const handleNewPartner = () => {
     if (!socket) return;
-
     socket.emit("new-partner", (response) => {
       if (!response.success) {
         console.error("Failed to find a new partner.");
@@ -78,13 +80,13 @@ const TextCallRoom = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
-      <div className="max-w-4xl mx-auto p-6">
+      <div className="max-w-5xl mx-auto p-4 md:p-6 flex flex-col h-screen">
         {/* Header */}
-        <div className="flex items-center justify-between mb-12">
-          <div className="flex items-center space-x-2">
-            <a href="/" className="flex items-center space-x-2">
-              <Globe className="w-8 h-8 text-blue-400" />
-              <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-400">
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center space-x-3">
+            <a href="/" className="flex items-center space-x-2 group">
+              <Globe className="w-8 h-8 text-blue-400 group-hover:text-blue-300 transition-colors" />
+              <h1 className="text-2xl md:text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-400">
                 disagree
               </h1>
             </a>
@@ -95,27 +97,27 @@ const TextCallRoom = () => {
               className="flex items-center space-x-2 text-gray-400 hover:text-gray-300 transition-colors"
             >
               <ArrowLeft size={20} />
-              <span>Back to Rooms</span>
+              <span className="hidden md:inline">Back to Rooms</span>
             </a>
             {isOwner && (
               <button
                 onClick={handleNewPartner}
-                className="flex items-center space-x-2 px-4 py-2 rounded-lg bg-gray-800/50 text-gray-300 border border-gray-700 hover:bg-gray-700/50 transition-colors"
+                className="flex items-center space-x-2 px-4 py-2 rounded-lg bg-gray-800/50 text-gray-300 border border-gray-700 hover:bg-gray-700/50 transition-all duration-200 hover:border-gray-600"
               >
                 <UserX size={20} />
-                <span>New Partner</span>
+                <span className="hidden md:inline">New Partner</span>
               </button>
             )}
           </div>
         </div>
 
         {/* Topic Card */}
-        <div className="bg-gray-800/50 backdrop-blur-sm rounded-lg border border-gray-700 p-6 mb-8">
-          <h2 className="text-xl font-semibold text-gray-100">{topic}</h2>
+        <div className="bg-gray-800/30 backdrop-blur-md rounded-xl border border-gray-700/50 p-6 mb-6">
+          <h2 className="text-xl font-semibold text-gray-100 mb-3">{topic}</h2>
           {party && percentage && (
-            <div className="flex justify-between mt-2">
+            <div className="flex items-center">
               <span
-                className={`px-3 py-1 rounded-full text-sm font-medium border ${getStanceBubbleColor()}`}
+                className={`px-4 py-1.5 rounded-full text-sm font-medium border ${getStanceBubbleColor()}`}
               >
                 {percentage}% {party}
               </span>
@@ -124,32 +126,35 @@ const TextCallRoom = () => {
         </div>
 
         {/* Chat Section */}
-        <div className="bg-gray-800/50 backdrop-blur-sm rounded-lg border border-gray-700 p-6">
-          <div className="h-64 overflow-y-auto bg-gray-900/50 rounded-lg p-4 mb-4">
+        <div className="flex-1 bg-gray-800/30 backdrop-blur-md rounded-xl border border-gray-700/50 p-4 flex flex-col">
+          <div className="flex-1 overflow-y-auto space-y-4 px-2">
             {messages.map((msg, idx) => (
               <div
                 key={idx}
-                className={`mb-2 ${msg.self ? "text-right" : "text-left"}`}
+                className={`flex ${msg.self ? "justify-end" : "justify-start"}`}
               >
-                <span className="inline-block px-3 py-1 rounded-lg text-sm font-medium bg-gray-700 text-gray-300">
-                  {msg.text}
-                </span>
+                <div className="max-w-[80%] bg-gray-700/50 text-gray-200 rounded-2xl px-4 py-2 shadow-lg">
+                  <p className="text-sm md:text-base">{msg.text}</p>
+                </div>
               </div>
             ))}
           </div>
-          <div className="flex">
-            <input
-              type="text"
+          
+          <div className="mt-4 flex items-center space-x-3">
+            <textarea
               value={newMessage}
               onChange={(e) => setNewMessage(e.target.value)}
-              className="flex-grow bg-gray-900/50 border border-gray-700 rounded-lg py-2 px-4 text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all"
+              onKeyPress={handleKeyPress}
+              className="flex-1 bg-gray-900/50 border border-gray-700/50 rounded-xl py-2.5 px-4 text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500/30 transition-all placeholder-gray-500 resize-none h-12 leading-5"
               placeholder="Type your message..."
+              rows={1}
             />
             <button
               onClick={sendMessage}
-              className="ml-4 px-6 py-2 rounded-lg bg-blue-500 text-white font-medium hover:bg-blue-600 transition-colors"
+              className="p-3 rounded-xl bg-gray-700/50 text-gray-300 hover:bg-gray-600/50 transition-colors duration-200 flex items-center justify-center border border-gray-700 hover:border-gray-600"
+              disabled={!newMessage.trim()}
             >
-              Send
+              <Send size={20} />
             </button>
           </div>
         </div>
