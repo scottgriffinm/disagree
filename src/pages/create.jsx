@@ -55,7 +55,7 @@ const CreateRoom = () => {
 
         const { room } = response;
         setLocation(
-          `/waiting?topic=${encodeURIComponent(room.name)}&party=${encodeURIComponent(room.stance.party)}&percentage=${room.stance.percentage}&type=${room.type}`
+          `/waiting?topic=${encodeURIComponent(room.name)}&party=${encodeURIComponent(room.stance.party)}&percentage=${room.stance.percentage}`
         );
       });
     } else {
@@ -153,7 +153,7 @@ const CreateRoom = () => {
                   onClick={() => handleRoomTypeChange("text")}
                   className={`flex items-center justify-center space-x-2 p-4 rounded-lg border transition-all ${
                     formData.roomType === "text"
-                      ? "border-blue-500/50 bg-blue-500/10 text-blue-400"
+                      ? "border-yellow-500/50 bg-yellow-500/10 text-yellow-400"
                       : "border-gray-700 bg-gray-900/50 text-gray-400 hover:bg-gray-800/50"
                   }`}
                 >
@@ -165,7 +165,7 @@ const CreateRoom = () => {
                   onClick={() => handleRoomTypeChange("voice")}
                   className={`flex items-center justify-center space-x-2 p-4 rounded-lg border transition-all ${
                     formData.roomType === "voice"
-                      ? "border-blue-500/50 bg-blue-500/10 text-blue-400"
+                      ? "border-green-500/50 bg-green-500/10 text-green-400"
                       : "border-gray-700 bg-gray-900/50 text-gray-400 hover:bg-gray-800/50"
                   }`}
                 >

@@ -222,7 +222,7 @@ if (filters.voice) {
 
       const { room: joinedRoom } = response;
       setLocation(
-        `/call?topic=${encodeURIComponent(
+        `/call-?topic=${encodeURIComponent(
           joinedRoom.name
         )}&party=${encodeURIComponent(
           joinedRoom.stance.party
@@ -354,7 +354,7 @@ if (filters.voice) {
               <button
                 className={`px-4 py-2 rounded-full text-sm font-medium ${
                   filters.text
-                    ? "bg-green-500/20 text-green-300 border border-green-500/30"
+                    ? "bg-yellow-500/20 text-yellow-300 border border-yellow-500/30"
                     : "bg-gray-500/20 text-gray-400 border border-gray-500/30"
                 }`}
                 onClick={() => {
@@ -372,7 +372,7 @@ if (filters.voice) {
               <button
                 className={`px-4 py-2 rounded-full text-sm font-medium ${
                   filters.voice
-                    ? "bg-yellow-500/20 text-yellow-300 border border-yellow-500/30"
+                    ? "bg-green-500/20 text-green-300 border border-green-500/30"
                     : "bg-gray-500/20 text-gray-400 border border-gray-500/30"
                 }`}
                 onClick={() => {
@@ -458,17 +458,7 @@ if (filters.voice) {
                     >
                       <td className="px-4 py-4 w-1/5">
                         <div className="flex items-center space-x-3">
-                          <div
-                            className={`w-2 h-2 rounded-full ${
-                              !isRoomOpen(room)
-                                ? "bg-gray-400"
-                                : room.stance.percentage <= 25
-                                ? "bg-purple-400"
-                                : room.stance.party === "Right"
-                                ? "bg-red-400"
-                                : "bg-blue-400"
-                            }`}
-                          />
+                         
                           <span className="text-gray-100 font-medium">
                             {room.name}
                           </span>
@@ -477,9 +467,9 @@ if (filters.voice) {
                       <td className="px-6 py-4 text-center w-1/5">
                         <span
                           className={`px-3 py-1 rounded-full text-xs font-medium w-24 flex justify-center items-center ${
-                            room.type === "text"
-                              ? "bg-green-500/20 text-green-300 border border-green-500/30"
-                              : "bg-yellow-500/20 text-yellow-300 border border-yellow-500/30"
+                            room.type === "text" 
+                              ? "bg-yellow-500/20 text-yellow-300 border border-yellow-500/30"
+                              : "bg-green-500/20 text-green-300 border border-green-500/30"
                           }`}
                         >
                           {room.type === "text" ? "Text" : "Voice"}
