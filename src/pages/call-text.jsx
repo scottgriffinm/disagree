@@ -85,7 +85,7 @@ const TextCallRoom = () => {
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center space-x-3">
             <a href="/" className="flex items-center space-x-2 group">
-              <Globe className="w-8 h-8 text-blue-400 group-hover:text-blue-300 transition-colors" />
+             
               <h1 className="text-2xl md:text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-400">
                 disagree
               </h1>
