@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Search, ArrowUpDown, Plus, Globe } from "lucide-react";
-import { useSocket } from "../app.jsx"; 
-import { Link, useLocation } from "wouter"; 
+import { useSocket } from "../app.jsx";
+import { Link, useLocation } from "wouter";
 
 const DisagreePlatform = () => {
   const socket = useSocket();
@@ -146,14 +146,14 @@ const DisagreePlatform = () => {
             (room.stance.party === "Left" && room.stance.percentage <= 25) ||
             (room.stance.party === "Right" && room.stance.percentage <= 25);
         }
-        
-        if (filters.text) {
-  matchesFilter = matchesFilter && room.type === "text";
-}
 
-if (filters.voice) {
-  matchesFilter = matchesFilter && room.type === "voice";
-}
+        if (filters.text) {
+          matchesFilter = matchesFilter && room.type === "text";
+        }
+
+        if (filters.voice) {
+          matchesFilter = matchesFilter && room.type === "voice";
+        }
 
         return matchesFilter;
       })
@@ -239,7 +239,7 @@ if (filters.voice) {
         <div className="flex justify-between items-center mb-8">
           <div className="flex items-center space-x-2">
             <a href="/" className="flex items-center space-x-2">
-              <Globe className="w-8 h-8 text-blue-400" />
+          
               <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-400">
                 disagree
               </h1>
@@ -457,7 +457,6 @@ if (filters.voice) {
                     >
                       <td className="px-4 py-4 w-1/5">
                         <div className="flex items-center space-x-3">
-                         
                           <span className="text-gray-100 font-medium">
                             {room.name}
                           </span>
@@ -466,7 +465,7 @@ if (filters.voice) {
                       <td className="px-6 py-4 text-center w-1/5">
                         <span
                           className={`px-3 py-1 rounded-full text-xs font-medium w-24 flex justify-center items-center ${
-                            room.type === "text" 
+                            room.type === "text"
                               ? "bg-yellow-500/20 text-yellow-300 border border-yellow-500/30"
                               : "bg-green-500/20 text-green-300 border border-green-500/30"
                           }`}

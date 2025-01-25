@@ -134,7 +134,7 @@ const VoiceCallWaiting = () => {
         <div className="flex items-center justify-between mb-12">
           <div className="flex items-center space-x-2">
             <a href="/" className="flex items-center space-x-2">
-              <Globe className="w-8 h-8 text-blue-400" />
+            
               <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-400">
                 disagree
               </h1>
