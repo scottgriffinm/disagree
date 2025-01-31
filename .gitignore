@@ -3,4 +3,9 @@ web_modules
 .firebase
 .firebaserc
 .glitchdotcom.json
+.cache
+.config
+.npm
+.data
+
 build
