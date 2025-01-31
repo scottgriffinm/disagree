@@ -5,7 +5,7 @@ import { HelmetProvider } from 'react-helmet-async';
 import './styles/styles.css';
 
 /**
-* Root of react site 
+* Root of react site  
 *
 * Imports Helmet provider for the page head
 * And App which defines the content and navigation
